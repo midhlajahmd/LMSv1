@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Login</h2>
+        <form action="" method="post" novalidate class="mx-auto" style="max-width: 400px;">
+            {% csrf_token %}
+            <div class="mb-3">
+                {{ login_form.as_p }}
+            </div>
+            <div class="d-grid">
+                <input type="submit" value="Login" class="btn btn-success">
+            </div>
+        </form>
+    </div>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-OF6QOv1A+alZCdDP5pmAVXoGswVniHZBNz6qQQRV0mDF4aSMEW26icnVz3icpBzy" crossorigin="anonymous"></script>
+</body>
+</html>
