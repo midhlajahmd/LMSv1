@@ -32,13 +32,21 @@ class Books(models.Model):
     book_name= models.CharField(max_length=200)
     genre= models.ForeignKey(Genres, related_name='book_genre',on_delete=models.SET_NULL, null=True)
     author= models.ForeignKey(Authors, related_name='book_author',on_delete=models.SET_NULL, null=True)
-    ISBN = models.CharField(max_length=13, unique=True)  
-    price = models.DecimalField(max_digits=8, decimal_places=2)
-    rent = models.DecimalField(max_digits=8, decimal_places=2)
+    ISBN= models.CharField(max_length=13, unique=True)  
+    price= models.DecimalField(max_digits=8, decimal_places=2)
+    rent= models.DecimalField(max_digits=8, decimal_places=2)
     status= models.CharField(max_length=13, choices=STATUS_CHOICES, default='available')
 
     def __str__(self):
         return self.book_name
 
 #model for MEMEBRSHIP PLANS
-#class Membership(models.Model):
+class MembershipPlan(models.Model):
+    plan_name= models.CharField(max_length=100, unique=True)
+    rent_limit= models.PositiveIntegerField()
+    rent_duration= models.PositiveIntegerField()
+    plan_duration= models.PositiveIntegerField()
+    fee= models.DecimalField(max_digits=10, decimal_places=2) 
+
+    def __str__(self):
+        return self.plan_name
