@@ -110,15 +110,6 @@ def book_edit(request, pk):
     else:
         form = BookForm(instance=book)
         
-        # Remove non-editable fields (book_name, genre, author, ISBN, etc.) for editing
-        editable_fields = ['rent_percentage', 'price', 'quantity', 'status']
-        for field in list(form.fields):  # Loop through all fields
-            if field not in editable_fields:
-                del form.fields[field]  # Completely remove non-editable fields from the form
-
-                # Set the value of the removed field to the current value from the model to avoid validation errors
-                form.initial[field] = getattr(book, field, None)  # Preserve the existing value of the field
-
     return render(request, 'books/book_form.html', {'form': form, 'title': 'Edit Book'})
 
 #DELETE BOOK
