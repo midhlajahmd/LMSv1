@@ -1,6 +1,10 @@
 from django.urls import path
-from django.contrib.auth.views import LoginView  
+from .views import user_login,librarian_dashboard,home_page,register
 
-urlpatterns = [
-    path('accounts/login/', LoginView.as_view(template_name='librarymsv1/login.html'), name='login'),
+urlpatterns= [
+    path('', home_page, name='home_page'),
+    path('login/', user_login, name='login'),
+    path('register/',register, name='signup' ),
+    path('librarian-dashboard/', librarian_dashboard, name='librarian_dashboard'),
+    
 ]
