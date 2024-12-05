@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from .forms import LoginForm,UserRegistrationForm
 from django.contrib import messages
 from django.http import HttpResponse
+from django.contrib.auth.models import User,Group
 
 
 # Create your views here.
@@ -50,6 +51,10 @@ def register(request):
             # Set the password securely using set_password
             new_user.set_password(user_req_form.cleaned_data['password'])
             new_user.save()  # Save the user to the database
+            # Add the user to the default 'student' group
+            group = Group.objects.get(name='student')
+            new_user.groups.add(group)
+
             messages.success(request, 'Your account has been created successfully. Please log in.')
             return render(request, 'register_done.html', {'user_req_form': user_req_form})
         else:
