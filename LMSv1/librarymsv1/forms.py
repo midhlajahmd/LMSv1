@@ -1,10 +1,10 @@
 from django import forms
-#from .models import Use
+from .models import Books,Authors, Genres
 from django.forms import ValidationError
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 
-#LOGIN function
+#LOGIN
 class LoginForm(AuthenticationForm): 
     username = forms.CharField(
         label="Username",
@@ -22,7 +22,7 @@ class LoginForm(AuthenticationForm):
         })
     )
 
-    #REGISTER function
+#REGISTER
 class UserRegistrationForm(forms.ModelForm):
 # Password field
     password = forms.CharField(
@@ -48,3 +48,27 @@ class UserRegistrationForm(forms.ModelForm):
         if cd['password'] != cd['password2']:
             raise ValidationError('The two password fields must match.')
         return cd['password2']
+    
+#BOOKS
+class BookForm(forms.ModelForm):
+    class Meta:
+        model = Books
+        fields = '__all__'
+
+#AUTHORS
+class AuthorForm(forms.ModelForm):
+    class Meta:
+        model = Authors
+        fields = ['author_name']
+        widgets = {
+            'author_name': forms.TextInput(attrs={'placeholder': 'Enter author name', 'class': 'form-control'})
+        }
+
+#GENRES
+class GenreForm(forms.ModelForm):
+    class Meta:
+        model = Genres
+        fields = ['genre_name']
+        widgets = {
+            'genre_name': forms.TextInput(attrs={'placeholder': 'Enter genre name', 'class': 'form-control'})
+        }

@@ -2,10 +2,55 @@
 <html lang="en">
 <head>
     <title>Librarian Dashboard</title>
+    <style>
+        .btn-custom {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn-custom:hover {
+            background-color: #0056b3;
+        }
+        h2 {
+            margin-top: 30px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            margin: 10px 0;
+        }
+    </style>
 </head>
 <body>
     <h1>Welcome, Librarian</h1>
     <p>You are logged in!</p>
-    <a href="{% url 'login' %}" class="btn-custom">Logout</a>
+
+    <!-- Logout link -->
+    <a href="{% url 'logout' %}" class="btn-custom">Logout</a>
+
+    <!-- Links to book management -->
+    <h2>Manage Books</h2>
+    <ul>
+        <li><a href="{% url 'book_list' %}">View Books</a></li>
+        <li><a href="{% url 'book_add' %}">Add New Book</a></li>
+    </ul>
+
+    <!-- Links to author management -->
+    <h2>Manage Authors</h2>
+    <ul>
+        <li><a href="{% url 'author_list' %}">View Authors</a></li>
+        <li><a href="{% url 'add_author' %}">Add New Author</a></li>
+    </ul>
+
+    <!-- Links to genre management -->
+    <h2>Manage Genres</h2>
+    <ul>
+        <li><a href="{% url 'genre_list' %}">View Genres</a></li>
+        <li><a href="{% url 'add_genre' %}">Add New Genre</a></li>
+    </ul>
 </body>
 </html>

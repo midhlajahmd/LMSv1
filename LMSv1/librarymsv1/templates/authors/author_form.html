@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block body %}
+  <h1>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Author</h1>
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="id_author_name">Author Name</label>
+      {{ form.author_name }}
+    </div>
+    <button type="submit" class="btn btn-primary">{% if form.instance.pk %}Save Changes{% else %}Add Author{% endif %}</button>
+  </form>
+{% endblock %}

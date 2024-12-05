@@ -14,7 +14,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'home' %}">
+            <a class="navbar-brand" href="#">
                 <img src="{% static 'images/logo.avif' %}" alt="Logo" width="30" height="30" class="d-inline-block align-top">
                 MySite
             </a>
@@ -25,7 +25,7 @@
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                            <a class="nav-link" href="#">Profile</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'logout' %}">Logout</a>
@@ -53,7 +53,7 @@
     <!-- Footer -->
     <footer class="bg-light text-center text-lg-start mt-auto">
         <div class="text-center p-3">
-            © 2024 MySite | <a class="text-dark" href="{% url 'privacy_policy' %}">Privacy Policy</a>
+            © 2024 MySite | <a class="text-dark" href="#">Privacy Policy</a>
         </div>
     </footer>
 

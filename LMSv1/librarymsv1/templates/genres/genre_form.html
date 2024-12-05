@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block body %}
+  <h1>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Genre</h1>
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="id_genre_name">Genre Name</label>
+      {{ form.genre_name }}
+    </div>
+    <button type="submit" class="btn btn-primary">{% if form.instance.pk %}Save Changes{% else %}Add Genre{% endif %}</button>
+  </form>
+{% endblock %}
