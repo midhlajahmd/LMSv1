@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 # Create your models here.
 #model for GENRES
@@ -72,3 +73,33 @@ class MembershipPlan(models.Model):
 
     def __str__(self):
         return self.plan_name
+    
+class StudentProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    membership_plan = models.ForeignKey(
+        MembershipPlan, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    subscription_date = models.DateField(null=True, blank=True)
+    expiry_date = models.DateField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s Profile"
+    
+    # Model for RENTALS
+class Rental(models.Model):
+    student_profile = models.ForeignKey(StudentProfile, on_delete=models.SET_NULL, null=True)
+    book = models.ForeignKey(Books, on_delete=models.SET_NULL, null=True)
+    rental_date = models.DateTimeField(default=timezone.now)
+    due_date = models.DateTimeField(null=True, blank=True)
+    is_rented = models.BooleanField(default=True)  # True means rented, False means returned
+
+    def save(self, *args, **kwargs):
+        if not self.due_date:
+            # Calculate due date based on membership plan rental days
+            if self.student_profile.membership_plan:
+                self.due_date = self.rental_date + timezone.timedelta(days=self.student_profile.membership_plan.rent_duration)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.book.book_name} rented by {self.student_profile.user.username}"

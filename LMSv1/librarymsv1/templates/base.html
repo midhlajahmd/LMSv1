@@ -5,31 +5,209 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
     <link rel="icon" href="{% static 'images/logo.avif' %}">
-    <title>{% block title %}Welcome{% endblock %}</title>
+    <title>{% block title %}Welcome {% endblock %}</title>
     <!-- BOOTSTRAP CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     {% block style %}{% endblock %}
 </head>
+<style>
+    .book-form {
+        max-width: 600px;
+        margin: 30px auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .book-form h1 {
+        color: #e74c3c; /* Soft Red */
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .book-form form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .book-form form button {
+        padding: 12px;
+        background-color: #e74c3c; /* Soft Red */
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .book-form form button:hover {
+        background-color: #c0392b; /* Darker Red */
+    }
+
+    .book-form a {
+        text-align: center;
+        display: block;
+        color: #e74c3c;
+        text-decoration: none;
+        font-weight: 400;
+    }
+
+    .book-form a:hover {
+        color: #c0392b;
+    }
+
+    /* Style the form fields */
+    .book-form .form-row {
+        margin-bottom: 15px;
+    }
+
+    .book-form input, .book-form select, .book-form textarea {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .book-form input:focus, .book-form select:focus, .book-form textarea:focus {
+        border-color: #e74c3c;
+        outline: none;
+    }
+    body {
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .author-form {
+        max-width: 600px;
+        margin: 30px auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .form-title {
+        color: #e74c3c; /* Soft Red */
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .author-form form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .author-form .form-group {
+        margin-bottom: 15px;
+    }
+
+    .author-form input, .author-form select, .author-form textarea {
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .author-form input:focus, .author-form select:focus, .author-form textarea:focus {
+        border-color: #e74c3c;
+        outline: none;
+    }
+
+    /* Submit Button */
+    .btn-submit {
+        padding: 12px;
+        background-color: #e74c3c; /* Soft Red */
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .btn-submit:hover {
+        background-color: #c0392b; /* Darker Red */
+    }
+
+    /* Cancel Link */
+    .cancel-link {
+        text-align: center;
+        display: block;
+        color: #e74c3c;
+        text-decoration: none;
+        font-weight: 400;
+    }
+
+    .cancel-link:hover {
+        color: #c0392b;
+    }
+    .navbar {
+        height: 70px;
+    }
+    .welcome-message {
+        padding-left: 10px;
+        border-left: 2px solid #e74c3c;
+        margin-left: 5px;
+    }
+
+   
+
+</style>
+
 <body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <img src="{% static 'images/logo.avif' %}" alt="Logo" width="30" height="30" class="d-inline-block align-top">
-                QuillQuest
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <!-- Left: Brand -->
+            <a class="navbar-brand"
+                href="{% if is_librarian %}{% url 'librarian_dashboard' %}
+                    {% elif is_student %}{% url 'book_list_student' %}
+                    {% else %}{% url 'book_list_student' %}{% endif %}">
+                <img src="{% static 'images/logo.png' %}" alt="Site Logo" width="30" height="30" class="d-inline-block align-top">
+                <strong>Q U I L L Q U E S T</strong>
             </a>
+    
+            <!-- Center: Welcome Message -->
+            {% if is_librarian %}
+                <span class="navbar-text text-center flex-grow-2 border-left welcome-message">
+                    Welcome <strong>{{ user.first_name }}</strong>
+                </span>
+            {% endif %}
+    
+            <!-- Right: Links -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Profile</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                        </li>
+                        {% if is_librarian %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Change Password</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="#">Profile</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                            </li>
+                        {% endif %}
                     {% else %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'login' %}">Login</a>

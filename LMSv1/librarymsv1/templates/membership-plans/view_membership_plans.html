@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Basic page styling */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        /* Centering the content block */
+        .content {
+            width: 80%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Styling the title */
+        h2 {
+            font-size: 2rem;
+            color: #D84B5C; /* Soft red color */
+            margin-bottom: 20px;
+        }
+
+        /* Plan details styling */
+        p {
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        strong {
+            font-weight: 600;
+        }
+
+        /* Soft red button */
+        button {
+            padding: 10px 20px;
+            background-color: #D84B5C;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #BF3E4A; /* Darker red shade */
+        }
+
+        /* Upgrade options section */
+        #upgrade-options {
+            background-color: #F9E1E1; /* Soft red background */
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        #upgrade-options ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #upgrade-options li {
+            margin-bottom: 15px;
+        }
+
+        #upgrade-options a {
+            color: #D84B5C;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        #upgrade-options a:hover {
+            text-decoration: underline;
+        }
+
+        /* Subscription details section */
+        .subscription-details {
+            background-color: #FFF0F0; /* Soft background for current subscription */
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .upgrade-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #d9534f; /* Red color (soft red theme) */
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        
+        .upgrade-button:hover {
+            background-color: #c9302c; /* Darker shade for hover effect */
+            transform: scale(1.05); /* Slightly enlarge the button on hover */
+        }
+        
+        .upgrade-button:focus {
+            outline: none; /* Remove the focus outline */
+        }
+        
+
+    </style>
+
+    {% if messages %}
+    <div class="alert">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <div class="content">
+        {% comment %} <h1>Membership Plans</h1> {% endcomment %}
+
+        {% if current_subscription %}
+            <div class="subscription-details">
+                <h2>Your Current Plan</h2>
+                <p>
+                    <strong>{{ current_subscription.plan_name }}</strong><br>
+                    Fee: ₹ {{ current_subscription.fee }}<br>
+                    Rent Limit: {{ current_subscription.rent_limit }} books<br>
+                    Rent Duration: {{ current_subscription.rent_duration }} days<br>
+                    Plan Expiry: {{ request.user.studentprofile.expiry_date }}
+                </p>
+
+                <!-- Check if the current plan is the highest plan -->
+                {% with highest_fee_plan=plans|dictsort:"fee"|last %}
+                    {% if current_subscription.fee < highest_fee_plan.fee %}
+                        <!-- Show upgrade button only if not on the highest plan -->
+                        <button onclick="toggleUpgradeOptions()">Upgrade Plan</button>
+                    {% endif %}
+                {% endwith %}
+            </div>
+
+            <!-- Hidden upgrade options, initially not visible -->
+            <div id="upgrade-options" style="display:none;">
+                {% comment %} <h2>Upgrade Plan</h2> {% endcomment %}
+                <p>Choose from the following options:</p>
+                <ul>
+                    {% for plan in plans %}
+                        {% if current_subscription.fee < plan.fee %}
+                            <li>
+                                <strong>{{ plan.plan_name }}</strong><br>
+                                Fee: ₹ {{ plan.fee }}<br>
+                                Rent Limit: {{ plan.rent_limit }} books<br>
+                                Rent Duration: {{ plan.rent_duration }} days<br>
+                                <a href="{% url 'upgrade_plan' plan.id %}" class="upgrade-button">Upgrade to this plan</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+
+        {% else %}
+            <p>You have not subscribed to any membership plan.</p>
+
+            <h2>Available Plans</h2>
+            <ul>
+                {% for plan in plans %}
+                    <li>
+                        <strong>{{ plan.plan_name }}</strong><br>
+                        Fee: ₹ {{ plan.fee }}<br>
+                        Rent Limit: {{ plan.rent_limit }} books<br>
+                        Rent Duration: {{ plan.rent_duration }} days<br>
+                        <a href="{% url 'subscribe_to_plan' plan.id %}">Subscribe</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+
+    <script>
+        // Function to toggle the visibility of the upgrade options
+        function toggleUpgradeOptions() {
+            var upgradeOptions = document.getElementById('upgrade-options');
+            if (upgradeOptions.style.display === "none") {
+                upgradeOptions.style.display = "block";
+            } else {
+                upgradeOptions.style.display = "none";
+            }
+        }
+
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == "success" %}
+                    alert("{{ message }}");
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </script>
+{% endblock %}

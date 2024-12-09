@@ -1,8 +1,11 @@
 from django.urls import path
-from .views import user_login,librarian_dashboard,home_page,register,custom_logout,book_list,book_add,book_edit,book_delete,author_list,add_author,edit_author,delete_author,genre_list,add_genre,edit_genre,delete_genre
+from .views import user_login,librarian_dashboard,home_page,register,custom_logout,book_list,book_add,book_edit,book_delete
+from .views import author_list,add_author,edit_author,delete_author,genre_list,add_genre,edit_genre,delete_genre
+from .views import add_or_edit_plan,manage_membership_plans,view_membership_plans,subscribe_to_plan,upgrade_plan,student_profile
+from .views import book_list_student,rent_book,return_book,rented_books
 
 urlpatterns= [
-    path('', home_page, name='home_page'),
+    # path('', home_page, name='home_page'),
     path('login/', user_login, name='login'),
     path('register/',register, name='signup' ),
     path('logout/', custom_logout, name="logout"),
@@ -19,5 +22,17 @@ urlpatterns= [
     path('genres/add/', add_genre, name='add_genre'),
     path('genres/edit/<int:pk>/', edit_genre, name='edit_genre'),
     path('genres/delete/<int:pk>/', delete_genre, name='delete_genre'),
+    path('membership-plans/manage', manage_membership_plans, name='manage_membership_plans'),
+    path('membership-plans/add/', add_or_edit_plan, name='add_plan'),
+    path('membership-plans/edit/<int:pk>/', add_or_edit_plan, name='edit_plan'),
+     path('membership-plans/view', view_membership_plans, name='view_membership_plans'),
+    path('subscribe/<int:plan_id>/', subscribe_to_plan, name='subscribe_to_plan'),
+    path('upgrade/<int:plan_id>/', upgrade_plan, name='upgrade_plan'),
+    path('student/',student_profile, name='student_profile'),
+    path('', book_list_student, name='book_list_student'),
+
+    path('rent/<int:book_id>/', rent_book, name='rent_book'),
+    path('return/<int:rental_id>/', return_book, name='return_book'),
+    path('rented/', rented_books, name='rented_books'),
     
 ]

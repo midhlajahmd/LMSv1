@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<div class="dashboard">
+    <div class="profile-info">
+        <h2>Welcome <strong>{{ user.first_name }}</strong></h2>
+        <ul>
+            <li><a href="#" class="btn btn-secondary">View & Edit Profile</a></li>
+            <li><a href="{% url 'view_membership_plans' %}" class="btn btn-secondary">View & Edit Membership Plans</a></li>
+            <li><a href="#" class="btn btn-secondary">View Purchased Books</a></li>
+            <li><a href="{% url 'rented_books'%}" class="btn btn-secondary">View Rented Books</a></li>
+            <li><a href="{% url 'logout' %}" class="btn btn-secondary">Logout</a></li>
+        </ul>
+    </div>
+
+</div>
+
+{% endblock %}

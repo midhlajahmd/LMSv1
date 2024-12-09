@@ -1,5 +1,5 @@
 from django import forms
-from .models import Books,Authors, Genres
+from .models import Books,Authors, Genres, MembershipPlan
 from django.forms import ValidationError
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
@@ -72,3 +72,9 @@ class GenreForm(forms.ModelForm):
         widgets = {
             'genre_name': forms.TextInput(attrs={'placeholder': 'Enter genre name', 'class': 'form-control'})
         }
+
+# Form for MEMBERSHIP PLAN
+class MembershipPlanForm(forms.ModelForm):
+    class Meta:
+        model = MembershipPlan
+        fields = ['plan_name', 'rent_limit', 'rent_duration', 'plan_duration', 'fee']

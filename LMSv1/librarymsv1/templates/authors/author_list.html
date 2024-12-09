@@ -1,26 +1,213 @@
 {% extends 'base.html' %}
 
 {% block body %}
-  <h1>Authors List</h1>
-  <a href="{% url 'add_author' %}" class="btn btn-primary">Add Author</a>
-  <table class="table table-striped">
+<style>
+    /* General Styles */
+    body {
+        font-family: 'Poppins', sans-serif; /* Use Poppins font */
+        background-color: #fff4f4; /* Soft red background */
+        color: #333; /* Neutral text color */
+        margin: 0;
+        padding: 0;
+    }
+
+    h1 {
+        text-align: center;
+        color: #b30000; /* Deep red for headings */
+        margin-bottom: 20px;
+        font-weight: 600; /* Use Poppins font weight for headings */
+    }
+
+    /* Back Button Styles */
+    .btn-back {
+        display: inline-block;
+        margin: 20px auto;
+        text-decoration: none;
+        color: white;
+        background-color: #b30000; /* Deep red */
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-weight: bold;
+        text-align: center;
+    }
+
+    .btn-back:hover {
+        background-color: #990000; /* Darker red on hover */
+    }
+
+    /* Search Container Styles */
+    .search-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #ffe5e5; /* Light soft red background */
+        padding: 10px 20px;
+        border-radius: 8px;
+        margin: 20px auto;
+        max-width: 90%;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .search-container form {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .search-container input[type="text"] {
+        padding: 8px 10px;
+        border: 1px solid #b30000;
+        border-radius: 5px;
+        width: 200px;
+        font-family: 'Poppins', sans-serif; /* Ensure Poppins is used here */
+    }
+
+    .search-container button {
+        padding: 8px 15px;
+        background-color: #b30000; /* Deep red */
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        font-family: 'Poppins', sans-serif; /* Ensure Poppins is used here */
+    }
+
+    .search-container button:hover {
+        background-color: #990000; /* Darker red on hover */
+    }
+
+    .search-container select {
+        padding: 8px;
+        border: 1px solid #b30000;
+        border-radius: 5px;
+        cursor: pointer;
+        font-family: 'Poppins', sans-serif; /* Ensure Poppins is used here */
+    }
+
+    /* Add Author Button */
+    a[href="{% url 'add_author' %}"] {
+        display: inline-block;
+        margin: 20px auto;
+        text-decoration: none;
+        color: white;
+        background-color: #b30000; /* Deep red */
+        padding: 10px 20px;
+        border-radius: 5px;
+        font-weight: bold;
+        text-align: center;
+        font-family: 'Poppins', sans-serif; /* Ensure Poppins is used here */
+    }
+
+    a[href="{% url 'add_author' %}"]:hover {
+        background-color: #990000; /* Darker red on hover */
+    }
+
+    /* Table Styles */
+    table {
+        width: 90%;
+        margin: 20px auto;
+        border-collapse: collapse;
+        background-color: white;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        font-family: 'Poppins', sans-serif; /* Ensure Poppins is used here */
+    }
+
+    table thead {
+        background-color: #b30000; /* Deep red */
+        color: white;
+    }
+
+    table th, table td {
+        text-align: center;
+        padding: 10px;
+        border: 1px solid #f2f2f2;
+    }
+
+    table tr:nth-child(even) {
+        background-color: #ffe5e5; /* Light soft red */
+    }
+
+    table tr:hover {
+        background-color: #ffe5e5; /* Light red hover effect */
+    }
+
+    table a {
+        text-decoration: none;
+        color: #b30000; /* Deep red for links */
+        font-weight: bold;
+    }
+
+    table a:hover {
+        color: #990000; /* Darker red on hover */
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 8px 12px;
+        font-size: 14px;
+        font-weight: bold;
+        text-decoration: none;
+        border-radius: 5px;
+        text-align: center;
+        font-family: 'Poppins', sans-serif; /* Ensure Poppins is used here */
+    }
+
+    .btn-edit {
+        background-color: #b30000; /* Deep red for edit */
+        color: white;
+    }
+
+    .btn-edit:hover {
+        background-color: #990000; /* Darker red */
+    }
+
+    .btn-delete {
+        background-color: #ff4d4d; /* Light red for delete */
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background-color: #cc0000; /* Darker red for delete */
+    }
+</style>
+
+<!-- Back Button -->
+<a href="javascript:history.back()" class="btn-back">Back</a>
+
+<h1>Authors List</h1>
+
+<!-- Search Header -->
+<div class="search-container">
+    <form method="get">
+        <input type="text" name="searchauthor" placeholder="Search for authors by name" value="{{ request.GET.searchauthor }}">
+        <button type="submit">Search</button>
+    </form>
+</div>
+
+<!-- Add Author Button -->
+<a href="{% url 'add_author' %}" class="btn">Add Author</a>
+
+<!-- Authors Table -->
+<table class="table">
     <thead>
-      <tr>
-        <th>Author Name</th>
-        <th>Actions</th>
-      </tr>
+        <tr>
+            <th>Author Name</th>
+            <th>Actions</th>
+        </tr>
     </thead>
     <tbody>
-      {% for author in authors %}
-        <tr>
-          <td>{{ author.author_name }}</td>
-          <td>
-            <a href="{% url 'edit_author' author.pk %}" class="btn btn-warning">Edit</a>
-            <a href="{% url 'delete_author' author.pk %}" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this author?')">Delete</a>
-          </td>
-        </tr>
-      {% endfor %}
+        {% for author in authors %}
+            <tr>
+                <td>{{ author.author_name }}</td>
+                <td>
+                    <a href="{% url 'edit_author' author.pk %}" class="btn btn-edit">Edit</a>
+                    <a href="{% url 'delete_author' author.pk %}" class="btn btn-delete" onclick="return confirm('Are you sure you want to delete this author?')">Delete</a>
+                </td>
+            </tr>
+        {% endfor %}
     </tbody>
-  </table>
+</table>
+
 {% endblock %}
-{% comment %} just to push {% endcomment %}

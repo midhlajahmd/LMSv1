@@ -1,56 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Librarian Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
+        /* General Reset */
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa; /* Light gray background */
+            color: #333; /* Darker text color */
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            padding: 20px;
+            min-height: 100vh;
+            margin: 20px;
+        }
+
+        .main-content h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Cards Container */
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Three cards per row */
+            gap: 30px 75px; /* Adjusted gap - 30px vertical and 75px horizontal */
+            justify-items: center;
+            padding: 20px;
+            row-gap: 50px; /* Extra vertical spacing between rows */
+        }
+
+        /* Card Styles */
+        .card {
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            height: 125px; /* Ensure consistent card height */
+            background: white; /* Default white background */
+            transition: transform 0.3s, box-shadow 0.3s;
+            color: white; /* Adjust text color for gradient contrast */
+        }
+
+        .card:nth-child(1) { background: linear-gradient(135deg, #dab4e5, #c491e0); } 
+        .card:nth-child(2) { background: linear-gradient(135deg, #fecad5, #f69fb2); } 
+        .card:nth-child(3) { background: linear-gradient(135deg, #fdaea9, #f68d86); } 
+        .card:nth-child(4) { background: linear-gradient(135deg, #f0ca86, #e4ad5e); } 
+        .card:nth-child(5) { background: linear-gradient(135deg, #dde59b, #c9d87c); } 
+        .card:nth-child(6) { background: linear-gradient(135deg, #9ad7a4, #78c789); } 
+        .card:nth-child(7) { background: linear-gradient(135deg, #539C9A, #417c7a); } 
+
+        .card:hover {
+            transform: translateY(-5px); /* Lift the card on hover */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h3 {
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .card a {
+            text-decoration: none;
+            color: white;
+            background-color: #333; /* Dark button color */
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .card a:hover {
+            background-color: #555; /* Slightly lighter on hover */
+        }
+
+        /* Button Styles */
         .btn-custom {
+            display: inline-block;
             padding: 10px 15px;
-            background-color: #007bff;
+            background-color: #333; /* Dark button */
             color: white;
             text-decoration: none;
             border-radius: 5px;
+            font-weight: 600;
+            transition: background-color 0.3s;
         }
+
         .btn-custom:hover {
-            background-color: #0056b3;
-        }
-        h2 {
-            margin-top: 30px;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        ul li {
-            margin: 10px 0;
+            background-color: #555; /* Lighter hover effect */
         }
     </style>
 </head>
 <body>
-    <h1>Welcome, Librarian</h1>
-    <p>You are logged in!</p>
+    <!-- Main Content -->
+    <div class="main-content">
+        <h2>Librarian Dashboard</h2>
 
-    <!-- Logout link -->
-    <a href="{% url 'logout' %}" class="btn-custom">Logout</a>
-
-    <!-- Links to book management -->
-    <h2>Manage Books</h2>
-    <ul>
-        <li><a href="{% url 'book_list' %}">View Books</a></li>
-        <li><a href="{% url 'book_add' %}">Add New Book</a></li>
-    </ul>
-
-    <!-- Links to author management -->
-    <h2>Manage Authors</h2>
-    <ul>
-        <li><a href="{% url 'author_list' %}">View Authors</a></li>
-        <li><a href="{% url 'add_author' %}">Add New Author</a></li>
-    </ul>
-
-    <!-- Links to genre management -->
-    <h2>Manage Genres</h2>
-    <ul>
-        <li><a href="{% url 'genre_list' %}">View Genres</a></li>
-        <li><a href="{% url 'add_genre' %}">Add New Genre</a></li>
-    </ul>
+        <!-- Cards for navigation -->
+        <div class="card-container">
+            <div class="card">
+                <h3>Manage Books</h3>
+                <a href="{% url 'book_add' %}" class="btn-custom">Add Books</a>
+                <a href="{% url 'book_list' %}" class="btn-custom">View Books</a>
+            </div>
+            <div class="card">
+                <h3>Manage Authors</h3>
+                <a href="{% url 'add_author' %}" class="btn-custom">Add Authors</a>
+                <a href="{% url 'author_list' %}" class="btn-custom">View Authors</a>
+            </div>
+            <div class="card">
+                <h3>Manage Genres</h3>
+                <a href="{% url 'add_genre' %}" class="btn-custom">Add Genres</a>
+                <a href="{% url 'genre_list' %}" class="btn-custom">View Genres</a>
+            </div>
+            <div class="card">
+                <h3>Manage Membership Plans</h3>
+                <a href="{% url 'manage_membership_plans' %}" class="btn-custom">Manage Membership Plans</a>
+            </div>
+            <div class="card">
+                <h3>Manage Students</h3>
+                <a href="#" class="btn-custom">Manage Students</a>
+            </div>
+            <div class="card">
+                <h3>Logout</h3>
+                <a href="{% url 'logout' %}" class="btn-custom">Logout</a>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
