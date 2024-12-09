@@ -1,9 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>QuillQuest - Rented Books</title>
+{% extends "base.html" %}
+
+{% block title %}QuillQuest - Rented Books{% endblock %}
+
+{% block extra_css %}
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
+        .main-content {
+            min-height: 100vh;
+            
+        }
         body, h1, h3, p {
             font-family: 'Poppins', sans-serif;
             margin: 0;
@@ -138,50 +143,50 @@
         .alert p {
             margin: 0;
         }
-</style>
+    </style>
+{% endblock %}
 
-</head>
-<body>
-    <div class="container">
-        <h1>Rented Books</h1>
+{% block body %}
+<div class="container">
+    <h1>Rented Books</h1>
 
-        <!-- Display messages for success or info alerts -->
-        {% if messages %}
-        <div class="alert-container">
-            {% for message in messages %}
-                <div class="alert {{ message.tags }}">
-                    <p>{{ message }}</p>
+    <!-- Display messages for success or info alerts -->
+    {% if messages %}
+    <div class="alert-container">
+        {% for message in messages %}
+            <div class="alert {{ message.tags }}">
+                <p>{{ message }}</p>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if rentals %}
+        <div class="book-list">
+            {% for rental in rentals %}
+                <div class="book-card">
+                    <img src="{{ rental.book.ISBN.book_cover.url }}" alt="Book Cover">
+                    <h3>{{ rental.book.book_name }}</h3>
+                    <p>{{ rental.book.author.author_name }}</p>
+                    <p>{{ rental.book.genre.genre_name }}</p>
+                    {% comment %} <p class="price"><strong>Price:</strong>₹{{ rental.book.price }}</p>
+                    <p class="price"><strong>Rent: </strong>₹{{ rental.book.rent }}</p> {% endcomment %}
+                    <p style="color:red;">Due Date: <strong>{{ rental.due_date }}</strong>   </p>
+
+                    <!-- Read Button (redirect to read the book or open PDF) -->
+                    <a href="{{ rental.book.ISBN.book_content.url }}" class="btn-action" target="_blank">Read</a>
+
+                    <!-- Return Button -->
+                    {% if rental.is_rented %}
+                        <a href="{% url 'return_book' rental.id %}" class="btn-action">Return</a>
+                    {% else %}
+                        <p><strong>Returned</strong></p>
+                    {% endif %}
                 </div>
             {% endfor %}
         </div>
-        {% endif %}
-
-        {% if rentals %}
-            <div class="book-list">
-                {% for rental in rentals %}
-                    <div class="book-card">
-                        <img src="{{ rental.book.ISBN.book_cover.url }}" alt="Book Cover">
-                        <h3>{{ rental.book.book_name }}</h3>
-                        <p>{{ rental.book.author.author_name }}</p>
-                        <p class="price"><strong>Price:</strong>₹{{ rental.book.price }}</p>
-                        <p class="price"><strong>Rent: </strong>₹{{ rental.book.rent }}</p>
-                        <p><strong>Due Date: </strong>{{ rental.due_date }}</p>
-
-                        <!-- Read Button (redirect to read the book or open PDF) -->
-                        <a href="{{ rental.book.ISBN.book_content.url }}" class="btn-action" target="_blank">Read</a>
-
-                        <!-- Return Button -->
-                        {% if rental.is_rented %}
-                            <a href="{% url 'return_book' rental.id %}" class="btn-action">Return</a>
-                        {% else %}
-                            <p><strong>Returned</strong></p>
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p>You have no rented books.</p>
-        {% endif %}
-    </div>
-</body>
-</html>
+    {% else %}
+        <p>You have no rented books.</p>
+    {% endif %}
+</div>
+{% endblock %}

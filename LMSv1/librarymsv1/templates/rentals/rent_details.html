@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<style>
+    .page-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: calc(100vh - var(--top-bar-height) - var(--footer-height));
+        background-color: #f9f9f9;
+    }
+
+    .rent-details {
+        background-color: #fff;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        max-width: 500px;
+        width: 100%;
+    }
+
+    .rent-details h2 {
+        color: #333;
+    }
+
+    .rent-details p {
+        margin: 10px 0;
+        font-size: 16px;
+        color: #555;
+    }
+
+    .cover-image {
+        margin: 15px 0;
+        width: 100%;
+        max-width: 200px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn {
+        display: inline-block;
+        margin: 10px;
+        padding: 10px 15px;
+        font-size: 14px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+
+    .btn-primary {
+        background-color: #5bc0de;
+        color: #fff;
+    }
+
+    .btn-primary:hover {
+        background-color: #31b0d5;
+    }
+
+    .btn-secondary {
+        background-color: #f7f7f7;
+        color: #333;
+        border: 1px solid #ddd;
+    }
+
+    .btn-secondary:hover {
+        background-color: #e6e6e6;
+    }
+</style>
+
+<div class="page-container">
+    <div class="rent-details">
+        <h2>Rent Details</h2>
+        <img 
+            src="{{ book_content.book_cover.url }}" 
+            alt="Cover Image of {{ book.book_name }}" 
+            class="cover-image"
+        />
+        <p><strong>Book Title:</strong> {{ book.book_name }}</p>
+        <p><strong>Author:</strong> {{ book.author }}</p>
+        <p><strong>Genre:</strong> {{ book.genre }}</p>
+        <p><strong>ISBN:</strong> {{ book_content.isbn }}</p>
+        <p><strong>Rent:</strong> ₹ {{ book.rent }}</p>
+        
+        {% if can_rent %}
+            <a href="{% url 'rent_book' book.id %}" class="btn btn-primary">Rent</a>
+        {% else %}
+            <p style="color: red;">You have already rented this book.</p>
+        {% endif %}
+        
+        <a href="{% url 'book_list_student' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</div>
+{% endblock %}

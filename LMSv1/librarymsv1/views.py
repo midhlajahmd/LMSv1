@@ -5,7 +5,7 @@ from .forms import LoginForm,UserRegistrationForm,BookForm,AuthorForm,GenreForm,
 from django.contrib import messages
 from django.http import HttpResponse
 from django.contrib.auth.models import User,Group
-from .models import Books,Authors,Genres,MembershipPlan,StudentProfile,Rental
+from .models import Books,Authors,Genres,MembershipPlan,StudentProfile,Rental,BookContent,Payment
 from datetime import date, timedelta
 from django.utils import timezone
 
@@ -60,7 +60,7 @@ def register(request):
             group = Group.objects.get(name='student')
             new_user.groups.add(group)
 
-            messages.success(request, 'Your account has been created successfully. Please log in.')
+            #messages.success(request, 'Your account has been created successfully. Please log in.')
             return render(request, 'register_done.html', {'user_req_form': user_req_form})
         else:
             # If form is invalid, display error messages
@@ -234,6 +234,10 @@ def add_or_edit_plan(request, pk=None):
     return render(request, 'membership-plans/add_or_edit_plan.html', {'form': form})
 
 #USER SIDE plans
+def plan_details(request, plan_id):
+    plan = get_object_or_404(MembershipPlan, pk=plan_id)
+    return render(request, 'membership-plans/plan_details.html', {'plan': plan})
+
 @login_required
 def view_membership_plans(request):
     plans = MembershipPlan.objects.all()
@@ -253,16 +257,13 @@ def subscribe_to_plan(request, plan_id):
     plan = get_object_or_404(MembershipPlan, pk=plan_id)
     student_profile, created = StudentProfile.objects.get_or_create(user=request.user)
 
+    # Check if the user is already subscribed to this plan
     if student_profile.membership_plan == plan:
         messages.error(request, 'You are already subscribed to this plan.')
-    else:
-        student_profile.membership_plan = plan
-        student_profile.subscription_date = date.today()
-        student_profile.expiry_date = date.today() + timedelta(days=plan.plan_duration * 30)
-        student_profile.save()
-        messages.success(request, f'You have successfully subscribed to the {plan.plan_name} plan.')
+        return redirect('view_membership_plans')
 
-    return redirect('view_membership_plans')
+    # Redirect to the payment processing view to handle payment before finalizing the subscription
+    return redirect('process_payment', order_type_name="membership", related_id=plan.id)
 
 @login_required
 def upgrade_plan(request, plan_id):
@@ -271,14 +272,10 @@ def upgrade_plan(request, plan_id):
 
     if student_profile.membership_plan and student_profile.membership_plan.fee >= plan.fee:
         messages.error(request, 'You can only upgrade to a higher plan.')
-    else:
-        student_profile.membership_plan = plan
-        student_profile.subscription_date = date.today()
-        student_profile.expiry_date = date.today() + timedelta(days=plan.plan_duration * 30)
-        student_profile.save()
-        messages.success(request, f'You have successfully upgraded to the {plan.plan_name} plan.')
+        return redirect('view_membership_plans')
 
-    return redirect('view_membership_plans')
+    # Redirect to the payment processing view to handle payment before finalizing the upgrade
+    return redirect('process_payment', order_type_name="membership", related_id=plan.id)
 
 def student_profile(request):
     return render(request, 'student_profile.html')
@@ -289,36 +286,41 @@ def book_list_student(request):
 
 # Rent a book
 # Check if the user is logged in and has a membership plan
+# Integrated payment
 def rent_book(request, book_id):
     try:
         # Get the book by ID
-        book = Books.objects.get(id=book_id)
+        book = get_object_or_404(Books, id=book_id)
 
-        # Ensure the user is logged in
-        if not request.user.is_authenticated:
-            return redirect('login')  # Redirect to login page if not logged in
-
+        # Ensure the user is logged in (this is already ensured by @login_required)
         # Check if the student profile exists
         try:
             student_profile = StudentProfile.objects.get(user=request.user)
         except StudentProfile.DoesNotExist:
-            # If no profile exists, redirect to the profile creation page
-            messages.error(request, "You need to create a student profile.")
+            # If no membership exists, redirect to the profile creation page
+            messages.error(request, "You need to subscribe to a plan first")
             return redirect('view_membership_plans')  # Assuming 'student_profile' is the profile creation page
+
+        # Check if the user has exceeded the rental limit
+        active_rentals_count = Rental.objects.filter(
+            student_profile=student_profile,
+            is_rented=True
+        ).count()
 
         # Check if the book is already rented by the student
         if Rental.objects.filter(student_profile=student_profile, book=book, is_rented=True).exists():
             messages.info(request, "You have already rented this book.")
             return redirect('rented_books')  # Redirect to the rented books page
 
-        # Proceed with renting the book
-        rental = Rental.objects.create(student_profile=student_profile, book=book, is_rented=True)
-        rental.due_date = timezone.now() + timezone.timedelta(days=student_profile.membership_plan.rent_duration)
-        rental.save()
+        rental_limit = student_profile.membership_plan.rent_limit  # Assuming 'rental_limit' is a field in membership_plan
+        if active_rentals_count >= rental_limit:
+            return render(request, 'alert_and_redirect.html', {
+                'alert_message': f"You cannot rent more than {rental_limit} books.",
+                'redirect_url': 'book_list_student'  # Named URL for redirection
+            })
 
-        # Show success message
-        messages.success(request, "Book rented successfully!")
-        return redirect('rented_books')  # Redirect to the rented books page
+        # Redirect to the payment processing view to handle payment before finalizing the rental
+        return redirect('process_payment', order_type_name="rental", related_id=book.id)
 
     except Books.DoesNotExist:
         messages.error(request, "Book not found.")
@@ -344,7 +346,132 @@ def return_book(request, rental_id):
 # List rented books
 @login_required
 def rented_books(request):
-    student_profile = get_object_or_404(StudentProfile, user=request.user)
-    rentals = Rental.objects.filter(student_profile=student_profile, is_rented=True)
+    try:
+        # Attempt to get the StudentProfile for the logged-in user
+        student_profile = StudentProfile.objects.get(user=request.user)
+    except StudentProfile.DoesNotExist:
+        # If StudentProfile doesn't exist, alert the user
+        messages.error(request, "No books to show. Please subscribe a plan")
+        student_profile = None
+
+    # If a valid student_profile is found, fetch rentals
+    if student_profile:
+        rentals = Rental.objects.filter(student_profile=student_profile, is_rented=True)
+    else:
+        rentals = []
 
     return render(request, 'rented_books.html', {'rentals': rentals})
+
+def rent_details(request, book_id):
+    try:
+        # Fetch the book details
+        book = Books.objects.get(pk=book_id)
+
+        # Ensure the user is logged in
+        if not request.user.is_authenticated:
+            return redirect('login')
+
+        # Check if the student profile exists
+        try:
+            student_profile = StudentProfile.objects.get(user=request.user)
+        except StudentProfile.DoesNotExist:
+            messages.error(request, "You need to create a student profile first.")
+            return redirect('view_membership_plans')
+
+        # Check if the book is already rented by the user
+        rental = Rental.objects.filter(
+            student_profile=student_profile,
+            book=book,
+            is_rented=True
+        ).first()
+
+        # Fetch the book content (e.g., cover image) based on ISBN
+        book_content = BookContent.objects.filter(id=book.ISBN_id).first()
+
+        # Prepare data for rendering
+        context = {
+            'book': book,
+            'rental': rental,
+            'membership_plan': student_profile.membership_plan,
+            'can_rent': rental is None,  # Indicate if the book can be rented
+            'book_content': book_content,
+        }
+
+        return render(request, 'rentals/rent_details.html', context)
+
+    except Books.DoesNotExist:
+        messages.error(request, "Book not found.")
+        return redirect('book_list_student')
+    
+def process_payment(request, order_type_name, related_id):
+    amount = 0  # Initialize the 'amount' variable
+    current_date = timezone.now()
+
+    if request.method == "POST":
+        # Get payment details from form
+        payment_type = request.POST.get('payment_type')
+        user = request.user
+        
+        # Determine the amount based on order type
+        if order_type_name == "rental":
+            book = get_object_or_404(Books, id=related_id)
+            amount = book.rent  # Assuming `rent` is the field in Books
+        elif order_type_name == "membership":
+            plan = get_object_or_404(MembershipPlan, id=related_id)
+            amount = plan.fee  # Assuming `fee` is the field in MembershipPlan
+
+        # Dummy payment processing logic: assume payment is successful
+        if payment_type not in ['upi', 'cc', 'net_banking']:
+            messages.error(request, "Invalid payment type.")
+            return redirect('book_list_student')  # Redirect to an appropriate page
+
+        # Create payment entry in the database
+        payment = Payment.objects.create(
+            user_id=user,
+            purchase_type=order_type_name,
+            related_id=related_id,
+            amount=amount,
+            payment_type=payment_type,
+        )
+        payment.save()
+
+        # After payment success, finalize the rental or membership
+        if order_type_name == "rental":
+            book = get_object_or_404(Books, id=related_id)
+            student_profile = get_object_or_404(StudentProfile, user=user)
+            rental = Rental.objects.create(student_profile=student_profile, book=book, is_rented=True)
+            rental.due_date = timezone.now() + timedelta(days=student_profile.membership_plan.rent_duration)
+            rental.save()
+            # Redirect to the success page
+            messages.success(request, "Payment successful!")
+            return redirect('rented_books')  # Or redirect to the appropriate page
+        
+        elif order_type_name == "membership":
+            plan = get_object_or_404(MembershipPlan, id=related_id)
+            student_profile = get_object_or_404(StudentProfile, user=user)
+            student_profile.membership_plan = plan
+            student_profile.subscription_date = date.today()
+            student_profile.expiry_date = date.today() + timedelta(days=plan.plan_duration * 30)
+            student_profile.save()
+            # Redirect to the success page
+            messages.success(request, "Payment successful!")
+            return redirect('view_membership_plans')  # Or redirect to the appropriate page
+
+        # Redirect to the success page
+        messages.success(request, "Payment successful!")
+        return redirect('rented_books')  # Or redirect to the appropriate page
+
+    # Handle GET request to render the payment form
+    if order_type_name == "rental":
+        book = get_object_or_404(Books, id=related_id)
+        amount = book.rent  # Fetch the rental fee for the book
+    elif order_type_name == "membership":
+        plan = get_object_or_404(MembershipPlan, id=related_id)
+        amount = plan.fee  # Fetch the fee for the selected membership plan
+
+    return render(request, 'payment/payment_form.html', {
+        'order_type_name': order_type_name,
+        'related_id': related_id,
+        'amount': amount,
+        'current_date': current_date
+    })

@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block body %}
+  <div class="payment-form-container">
+    <h2>Payment Invoice</h2>
+
+    <!-- Display Payment Type, Date, and Amount -->
+    <div class="payment-details">
+        <p><strong>Payment Type:</strong> {{ order_type_name|title }}</p>
+        <p><strong>Date:</strong> {{ current_date }}</p>
+        <p><strong>Amount:</strong> ₹{{ amount }}</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- Payment Type Selection -->
+        <label for="payment_type">Payment Type:</label>
+        <select name="payment_type" id="payment_type">
+            <option value="upi">UPI</option>
+            <option value="cc">Credit Card</option>
+            <option value="net_banking">Net Banking</option>
+        </select>
+
+        <!-- Payment Details based on Payment Type -->
+        <div id="upi_fields" class="payment-fields" style="display:none;">
+            <label for="upi_id">UPI ID:</label>
+            <input type="text" name="upi_id" id="upi_id" placeholder="Enter UPI ID">
+        </div>
+
+        <div id="cc_input" style="display: none;">
+            <label for="cc_number">Card Number:</label>
+            <input type="text" name="cc_number" id="cc_number" required placeholder="Enter Card Number">
+            <label for="cc_expiry">Expiry (MM/YY):</label>
+            <input type="text" name="cc_expiry" id="cc_expiry" required placeholder="MM/YY" pattern="(0[1-9]|1[0-2])\/([0-9]{2})" title="Enter expiry date in MM/YY format">
+            <label for="cc_cvv">CVV:</label>
+            <input type="text" name="cc_cvv" id="cc_cvv" required placeholder="Enter CVV">
+        </div>
+
+
+        <div id="bank_fields" class="payment-fields" style="display:none;">
+            <label for="bank_details">Router Number:</label>
+            <input type="text" name="bank_details" id="bank_details" required placeholder="Enter Router Number">
+
+        </div>
+
+        <button type="submit" class="pay-button">Pay Now</button>
+    </form>
+  </div>
+
+  <style>
+    /* General styling for the payment form */
+    .payment-form-container {
+        width: 50%;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f4f4f9;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .payment-form-container h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    /* Payment details section */
+    .payment-details {
+        background-color: #fff;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    .payment-details p {
+        font-size: 16px;
+        margin: 5px 0;
+    }
+
+    /* Label styling */
+    label {
+        font-size: 16px;
+        color: #333;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    /* Input fields styling */
+    input[type="text"], select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background-color: #fff;
+    }
+
+    input[type="text"]:focus, select:focus {
+        outline: none;
+        border-color: #4CAF50;
+    }
+
+    /* Button styling */
+    .pay-button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 14px 32px;
+        font-size: 16px;
+        font-weight: bold;
+        border-radius: 5px;
+        border: none;
+        width: 100%;
+        cursor: pointer;
+    }
+
+    .pay-button:hover {
+        background-color: #45a049;
+    }
+  </style>
+
+  <!-- JavaScript for dynamically showing payment options -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const paymentTypeSelect = document.getElementById('payment_type');
+      const upiFields = document.getElementById('upi_fields');
+      const ccFields = document.getElementById('cc_input');
+      const bankFields = document.getElementById('bank_fields');
+
+      // Function to hide all payment fields
+      function hideAllFields() {
+        upiFields.style.display = 'none';
+        ccFields.style.display = 'none';
+        bankFields.style.display = 'none';
+      }
+
+      // Show payment fields based on selected payment type
+      paymentTypeSelect.addEventListener('change', function() {
+        hideAllFields();
+        const paymentType = paymentTypeSelect.value;
+
+        if (paymentType === 'upi') {
+          upiFields.style.display = 'block';
+        } else if (paymentType === 'cc') {
+          ccFields.style.display = 'block';
+        } else if (paymentType === 'net_banking') {
+          bankFields.style.display = 'block';
+        }
+      });
+
+      // Initialize based on the selected payment type (if any)
+      paymentTypeSelect.dispatchEvent(new Event('change'));
+    });
+  </script>
+
+{% endblock %}

@@ -75,7 +75,7 @@ class MembershipPlan(models.Model):
         return self.plan_name
     
 class StudentProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.SET_NULL,null=True)
     membership_plan = models.ForeignKey(
         MembershipPlan, on_delete=models.SET_NULL, null=True, blank=True
     )
@@ -103,3 +103,15 @@ class Rental(models.Model):
 
     def __str__(self):
         return f"{self.book.book_name} rented by {self.student_profile.user.username}"
+    
+    #PAYMENT TABLE
+class Payment(models.Model):
+    user_id = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    purchase_type = models.CharField(max_length=100)
+    related_id = models.IntegerField()  # ID of the corresponding record in rental, membership purchase, etc.
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_date = models.DateTimeField(auto_now_add=True)
+    payment_type = models.CharField(max_length=20, choices=[('upi', 'UPI'), ('cc', 'Credit Card'), ('net_banking', 'Net Banking')])
+
+    def __str__(self):
+        return f"Payment for {self.purchase_type} - {self.related_id}"

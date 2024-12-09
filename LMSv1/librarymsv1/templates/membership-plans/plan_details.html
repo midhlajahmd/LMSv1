@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #fff5f5;
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
+
+    .page-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: calc(100vh - var(--top-bar-height) - var(--footer-height));
+    }
+
+    .plan-details {
+        background-color: #ffe5e5;
+        border: 1px solid #ffcccc;
+        border-radius: 8px;
+        padding: 20px;
+        max-width: 400px;
+        width: 100%;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    .plan-details h2 {
+        font-size: 24px;
+        margin-bottom: 20px;
+        color: #d9534f;
+    }
+
+    .plan-details p {
+        margin: 10px 0;
+        font-size: 16px;
+        color: #555;
+    }
+
+    .btn {
+        display: inline-block;
+        margin-top: 15px;
+        padding: 10px 15px;
+        font-size: 14px;
+        border-radius: 4px;
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+
+    .btn-primary {
+        background-color: #d9534f;
+        color: #fff;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #c9302c;
+    }
+
+    .btn-secondary {
+        background-color: #f7f7f7;
+        color: #333;
+        border: 1px solid #ddd;
+    }
+
+    .btn-secondary:hover {
+        background-color: #e6e6e6;
+    }
+</style>
+
+<div class="page-container">
+    <div class="plan-details">
+        <h2>{{ plan.plan_name }}</h2>
+        <p><strong>Price:</strong> ₹{{ plan.fee }}</p>
+        <p><strong>Plan Duration:</strong> {{ plan.plan_duration }} months</p>
+        <p><strong>Rent Duration:</strong> {{ plan.rent_duration }} days for a book</p>
+        <p><strong>Rental Limit:</strong> {{ plan.rent_limit }} books</p>
+
+        <a href="{% url 'subscribe_to_plan' plan.id %}" class="btn btn-secondary">Pay</a>
+        <a href="{% url 'view_membership_plans' %}" class="btn btn-secondary">Cancel</a>
+    </div>
+</div>
+{% endblock %}

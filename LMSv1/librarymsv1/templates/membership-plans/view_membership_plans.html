@@ -10,12 +10,13 @@
             margin: 0;
             padding: 0;
             color: #333;
+            min-height: 100vh;
         }
 
         /* Centering the content block */
         .content {
             width: 80%;
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 30px;
             background-color: #fff;
@@ -23,95 +24,98 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
-        /* Styling the title */
         h2 {
             font-size: 2rem;
-            color: #D84B5C; /* Soft red color */
+            color: #D84B5C;
             margin-bottom: 20px;
         }
 
-        /* Plan details styling */
-        p {
+        /* Flex container for the cards */
+        .plan-cards-container {
+            display: flex;
+            justify-content: center; /* Centers the cards horizontally */
+            flex-wrap: wrap; /* Allows the cards to wrap to the next row if necessary */
+            gap: 20px; /* Adds space between the cards */
+        }
+
+        /* Card styles */
+        .plan-card {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 280px; /* Fixed width for each card */
+            transition: transform 0.2s ease;
+        }
+
+        .plan-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .plan-card h3 {
+            font-size: 1.5rem;
+            color: #D84B5C;
+        }
+
+        .plan-card p {
             font-size: 1rem;
             margin-bottom: 10px;
         }
 
-        strong {
+        .plan-card strong {
             font-weight: 600;
         }
 
-        /* Soft red button */
-        button {
+        .plan-card .btn {
+            display: inline-block;
             padding: 10px 20px;
             background-color: #D84B5C;
             color: white;
-            border: none;
+            text-align: center;
+            text-decoration: none;
             border-radius: 5px;
-            cursor: pointer;
             font-size: 1rem;
-            margin-top: 20px;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
-        button:hover {
-            background-color: #BF3E4A; /* Darker red shade */
+        .plan-card .btn:hover {
+            background-color: #BF3E4A;
+            transform: scale(1.05);
         }
 
-        /* Upgrade options section */
-        #upgrade-options {
-            background-color: #F9E1E1; /* Soft red background */
+        .upgrade-options {
+            background-color: #F9E1E1;
             padding: 20px;
             border-radius: 5px;
             margin-top: 20px;
         }
 
-        #upgrade-options ul {
+        .upgrade-options ul {
             list-style-type: none;
             padding: 0;
         }
 
-        #upgrade-options li {
+        .upgrade-options li {
             margin-bottom: 15px;
         }
 
-        #upgrade-options a {
+        .upgrade-options a {
             color: #D84B5C;
             text-decoration: none;
             font-weight: 500;
         }
 
-        #upgrade-options a:hover {
+        .upgrade-options a:hover {
             text-decoration: underline;
         }
 
-        /* Subscription details section */
         .subscription-details {
-            background-color: #FFF0F0; /* Soft background for current subscription */
+            background-color: #FFF0F0;
             padding: 15px;
             border-radius: 5px;
             margin-top: 20px;
         }
-        .upgrade-button {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #d9534f; /* Red color (soft red theme) */
-            color: white;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 5px;
-            font-size: 16px;
-            font-weight: 600;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-        
-        .upgrade-button:hover {
-            background-color: #c9302c; /* Darker shade for hover effect */
-            transform: scale(1.05); /* Slightly enlarge the button on hover */
-        }
-        
-        .upgrade-button:focus {
-            outline: none; /* Remove the focus outline */
-        }
-        
 
     </style>
 
@@ -122,9 +126,8 @@
         {% endfor %}
     </div>
     {% endif %}
-    <div class="content">
-        {% comment %} <h1>Membership Plans</h1> {% endcomment %}
 
+    <div class="content">
         {% if current_subscription %}
             <div class="subscription-details">
                 <h2>Your Current Plan</h2>
@@ -147,38 +150,39 @@
 
             <!-- Hidden upgrade options, initially not visible -->
             <div id="upgrade-options" style="display:none;">
-                {% comment %} <h2>Upgrade Plan</h2> {% endcomment %}
                 <p>Choose from the following options:</p>
-                <ul>
+                <div class="plan-cards-container">
                     {% for plan in plans %}
                         {% if current_subscription.fee < plan.fee %}
-                            <li>
-                                <strong>{{ plan.plan_name }}</strong><br>
-                                Fee: ₹ {{ plan.fee }}<br>
-                                Rent Limit: {{ plan.rent_limit }} books<br>
-                                Rent Duration: {{ plan.rent_duration }} days<br>
-                                <a href="{% url 'upgrade_plan' plan.id %}" class="upgrade-button">Upgrade to this plan</a>
-                            </li>
+                            <div class="plan-card">
+                                <h3>{{ plan.plan_name }}</h3>
+                                <p><strong>Fee:</strong> ₹ {{ plan.fee }}</p>
+                                <p><strong>Rent Limit:</strong> {{ plan.rent_limit }} books</p>
+                                <p><strong>Rent Duration:</strong> {{ plan.rent_duration }} days</p>
+                                <a href="{% url 'plan_details' plan.id %}" class="btn">Upgrade to this plan</a>
+                            </div>
                         {% endif %}
                     {% endfor %}
-                </ul>
+                </div>
             </div>
 
         {% else %}
-            <p>You have not subscribed to any membership plan.</p>
+            <p style="color:red">You have <strong> not subscribed</strong> to any membership plan.</p>
 
             <h2>Available Plans</h2>
-            <ul>
-                {% for plan in plans %}
-                    <li>
-                        <strong>{{ plan.plan_name }}</strong><br>
-                        Fee: ₹ {{ plan.fee }}<br>
-                        Rent Limit: {{ plan.rent_limit }} books<br>
-                        Rent Duration: {{ plan.rent_duration }} days<br>
-                        <a href="{% url 'subscribe_to_plan' plan.id %}">Subscribe</a>
-                    </li>
-                {% endfor %}
-            </ul>
+            <div class="upgrade-options">
+                <div class="plan-cards-container">
+                    {% for plan in plans %}
+                        <div class="plan-card">
+                            <h3>{{ plan.plan_name }}</h3>
+                            <p><strong>Fee:</strong> ₹ {{ plan.fee }}</p>
+                            <p><strong>Rent Limit:</strong> {{ plan.rent_limit }} books</p>
+                            <p><strong>Rent Duration:</strong> {{ plan.rent_duration }} days</p>
+                            <a href="{% url 'plan_details' plan.id %}" class="btn">Subscribe</a>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
         {% endif %}
     </div>
 
