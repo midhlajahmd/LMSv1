@@ -14,10 +14,12 @@ urlpatterns= [
     path('books/add/', book_add, name='book_add'),
     path('books/edit/<int:pk>/', book_edit, name='book_edit'),
     path('books/delete/<int:pk>/', book_delete, name='book_delete'),
+
     path('authors/', author_list, name='author_list'),
     path('authors/add/', add_author, name='add_author'),
     path('authors/edit/<int:pk>/', edit_author, name='edit_author'),
     path('authors/delete/<int:pk>/', delete_author, name='delete_author'),
+
     path('genres/', genre_list, name='genre_list'),
     path('genres/add/', add_genre, name='add_genre'),
     path('genres/edit/<int:pk>/', edit_genre, name='edit_genre'),
@@ -31,7 +33,9 @@ urlpatterns= [
     path('subscribe/<int:plan_id>/', subscribe_to_plan, name='subscribe_to_plan'),
     path('membership-plans/view', view_membership_plans, name='view_membership_plans'),
     path('upgrade/<int:plan_id>/', upgrade_plan, name='upgrade_plan'),
+
     path('student/',student_profile, name='student_profile'),
+    
     path('', book_list_student, name='book_list_student'),
 
     path('rentals/rent/<int:book_id>/', rent_details, name='rent_details'),

@@ -157,10 +157,30 @@
     .navbar {
         height: 70px;
     }
+    .navbar-nav .nav-link {
+        transition: box-shadow 0.3s ease-in-out;
+    }
+    
+    .navbar-nav .nav-link:hover {
+        box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3); /* Soft red shadow */
+        color: #c0392b; /* Darker red color on hover */
+    }
     .welcome-message {
         padding-left: 10px;
         border-left: 2px solid #e74c3c;
         margin-left: 5px;
+    }
+
+    /* Remove body and html margin and padding */
+    body, html {
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Remove any margin from the container */
+    .container {
+        margin-top: 0 !important; /* Remove margin-top */
+        padding-top: 0; /* Remove padding if any */
     }
 
    
@@ -185,6 +205,11 @@
                 <span class="navbar-text text-center flex-grow-2 border-left welcome-message">
                     Welcome <strong>{{ user.first_name }}</strong>
                 </span>
+
+            {% elif is_student %}
+            <span class="navbar-text text-center flex-grow-2 border-left welcome-message">
+                Welcome <strong>{{ user.first_name }}</strong>
+            </span>
             {% endif %}
     
             <!-- Right: Links -->
@@ -196,6 +221,9 @@
                     {% if user.is_authenticated %}
                         {% if is_librarian %}
                             <li class="nav-item">
+                                <a class="nav-link" href="{% url 'librarian_dashboard' %}">Home</a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" href="#">Change Password</a>
                             </li>
                             <li class="nav-item">
@@ -203,7 +231,13 @@
                             </li>
                         {% else %}
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Profile</a>
+                                <a class="nav-link" href="{% url 'book_list_student' %}">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'view_membership_plans' %}">Membership</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'student_profile' %}">Profile</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'logout' %}">Logout</a>
@@ -214,7 +248,7 @@
                             <a class="nav-link" href="{% url 'login' %}">Login</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'register' %}">Signup</a>
+                            <a class="nav-link" href="{% url 'signup' %}">Signup</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -224,6 +258,7 @@
 
     <!-- Main Content -->
     <div class="container mt-4">
+    {% comment %} <div class="mt-4"> {% endcomment %}
         {% block body %}
         <!-- Page-specific content goes here -->
         {% endblock %}

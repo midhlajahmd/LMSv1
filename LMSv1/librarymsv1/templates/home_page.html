@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block title %}QuillQuest - Home{% endblock %}
-
+{% load static %}
 {% block extra_css %}
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -123,13 +123,89 @@
             margin-top: 20px;
             margin-right: 15px;
         }
+
+        /* Image and Search Bar Section */
+        .hero-section {
+            position: relative;
+            #background-image: url("{% static 'images/homepage.jpg' %}");
+            background-size: cover;
+            background-position: center center;
+            height: 70vh;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            overflow: hidden;
+            margin: 0; /* Remove any margin */
+            padding: 0; /* Remove any padding */
+        }
+        
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%; /* Ensure full height for the page */
+        }
+
+        /* Optional: Overlay for better text visibility */
+        .hero-section::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.2); /* semi-transparent black */
+            z-index: 1;
+        }
+    
+        .search-bar {
+            position: relative;
+            z-index: 2;
+            background-color: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 60%;
+        }
+    
+        .search-bar input {
+            padding: 10px;
+            width: 80%;
+            border-radius: 5px;
+            border: none;
+            font-size: 16px;
+        }
+    
+        .search-bar button {
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            background-color: #d9534f;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+    
+        .search-bar button:hover {
+            background-color: #c9302c;
+        }
     </style>
 {% endblock %}
 
 {% block body %}
-    <div class="container">
-        {% comment %} <h1>BOOK LIST</h1> {% endcomment %}
+    <!-- Hero Section with Image and Search Bar -->
+    <div class="hero-section">
+        <div class="search-bar">
+            <input type="text" placeholder="Search books...">
+            <button type="submit">Search</button>
+        </div>
+    </div>
 
+    <div class="container">
         <div class="book-list">
             {% for book in books %}
                 <div class="book-card">
@@ -143,7 +219,7 @@
             {% endfor %}
         </div>
 
-        {% if user.is_authenticated %}
+        {% comment %} {% if user.is_authenticated %}
             <p>You are logged in!</p>
             <div class="auth-buttons">
                 <a href="{% url 'student_profile' %}" class="btn-custom">Profile</a>
@@ -155,11 +231,9 @@
                 <a href="{% url 'login' %}" class="btn-custom">Login</a>
                 <a href="{% url 'signup' %}" class="btn-custom">Signup</a>
             </div>
-        {% endif %}
+        {% endif %} {% endcomment %}
     </div>
 {% endblock %}
-
-
 
 {% block extra_js %}
     <script>
