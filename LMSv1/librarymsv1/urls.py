@@ -2,7 +2,8 @@ from django.urls import path
 from .views import user_login,librarian_dashboard,home_page,register,custom_logout,book_list,book_add,book_edit,book_delete
 from .views import author_list,add_author,edit_author,delete_author,genre_list,add_genre,edit_genre,delete_genre
 from .views import add_or_edit_plan,manage_membership_plans,view_membership_plans,subscribe_to_plan,upgrade_plan,student_profile,plan_details
-from .views import book_list_student,rent_book,return_book,rented_books,rent_details,process_payment
+from .views import book_list_student,rent_book,return_book,rented_books,rent_details,process_payment,purchase_details,purchase_book,process_payment_buy
+from .views import purchased_books
 
 urlpatterns= [
     # path('', home_page, name='home_page'),
@@ -44,5 +45,10 @@ urlpatterns= [
     path('rented/', rented_books, name='rented_books'),
 
     path('process_payment/<str:order_type_name>/<int:related_id>/', process_payment, name='process_payment'),
+    path('process_payment_buy/<str:order_type_name>/<int:related_id>/', process_payment_buy, name='process_payment_buy'),
+
+    path('purchase/purchase/<int:book_id>/', purchase_details, name='purchase_details'),
+    path('purchase/purchasebook/<int:book_id>/', purchase_book, name='purchase_book'),
+    path('purchase/purchased_books/', purchased_books, name='purchased_books'),
     
 ]

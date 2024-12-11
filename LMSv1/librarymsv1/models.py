@@ -104,7 +104,7 @@ class Rental(models.Model):
     def __str__(self):
         return f"{self.book.book_name} rented by {self.student_profile.user.username}"
     
-    #PAYMENT TABLE
+#PAYMENT TABLE
 class Payment(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     purchase_type = models.CharField(max_length=100)
@@ -115,3 +115,14 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"Payment for {self.purchase_type} - {self.related_id}"
+    
+#PURCHASE TABLE
+class BookPurchase(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    book = models.ForeignKey(Books, on_delete=models.SET_NULL, null=True)
+    purchase_date = models.DateTimeField(auto_now_add=True)
+    quantity = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    address = models.TextField()
+    pincode = models.CharField(max_length=10)
+    phone = models.CharField(max_length=15)

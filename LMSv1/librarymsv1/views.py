@@ -5,7 +5,7 @@ from .forms import LoginForm,UserRegistrationForm,BookForm,AuthorForm,GenreForm,
 from django.contrib import messages
 from django.http import HttpResponse
 from django.contrib.auth.models import User,Group
-from .models import Books,Authors,Genres,MembershipPlan,StudentProfile,Rental,BookContent,Payment
+from .models import Books,Authors,Genres,MembershipPlan,StudentProfile,Rental,BookContent,Payment,BookPurchase
 from datetime import date, timedelta
 from django.utils import timezone
 
@@ -35,7 +35,7 @@ def user_login(request):
 
 def custom_logout(request):
     logout(request) #destroy all the session id for a particular user
-    return redirect('login')
+    return redirect('book_list_student')
 
 @login_required
 def librarian_dashboard(request):
@@ -475,3 +475,119 @@ def process_payment(request, order_type_name, related_id):
         'amount': amount,
         'current_date': current_date
     })
+
+#PURCHASE PAYMENT
+def process_payment_buy(request, order_type_name, related_id):
+    current_date = timezone.now()
+
+    if request.method == "POST":
+        # Get form data
+        payment_type = request.POST.get('payment_type')
+        address = request.POST.get('address')
+        pincode = request.POST.get('pincode')
+        phone = request.POST.get('phone')
+        quantity = int(request.POST.get('quantity'))
+
+        user = request.user
+        book = get_object_or_404(Books, id=related_id)
+
+        # Calculate total amount
+        amount = book.price * quantity
+
+        # Validate quantity availability
+        if book.quantity < quantity:
+            messages.error(request, "Insufficient stock available.")
+            return redirect('book_list')
+
+        # Dummy payment processing logic
+        if payment_type not in ['upi', 'cc', 'net_banking']:
+            messages.error(request, "Invalid payment type.")
+            return redirect('book_list')
+
+        # Create payment entry
+        Payment.objects.create(
+            user_id=user,
+            purchase_type=order_type_name,
+            related_id=related_id,
+            amount=amount,
+            payment_type=payment_type,
+        )
+
+        # Create purchase entry
+        BookPurchase.objects.create(
+            user=user,
+            book=book,
+            purchase_date=current_date,
+            quantity=quantity,
+            price=amount,
+            address=address,
+            pincode=pincode,
+            phone=phone,
+        )
+
+        # Update stock
+        book.quantity -= quantity
+        book.save()
+
+        messages.success(request, "Purchase successful!")
+        return redirect('purchased_books')  # Replace with the appropriate success page
+
+    # Render payment form for GET request
+    book = get_object_or_404(Books, id=related_id)
+    amount = book.price  # Single unit price for the book
+
+    return render(request, 'payment/payment_form_buy.html', {
+        'order_type_name': order_type_name,
+        'related_id': related_id,
+        'amount': amount,
+        'current_date': current_date
+    })
+
+
+#PURCHASE BOOK
+def purchase_book(request, book_id):
+    try:
+        # Get the book by ID
+        book = get_object_or_404(Books, id=book_id)
+
+        # Ensure the user is logged in
+        if not request.user.is_authenticated:
+            return redirect('login')
+        # Redirect to the payment processing view to handle payment before finalizing the purchase
+        return redirect('process_payment_buy', order_type_name="purchase", related_id=book.id)
+
+    except Exception as e:
+        # Handle any unexpected errors
+        messages.error(request, "An error occurred: " + str(e))
+        return redirect('book_list_student')  # Redirect to the book list page
+
+#PURCHASE DETAILS
+def purchase_details(request, book_id):
+    try:
+        # Fetch the book details
+        book = Books.objects.get(pk=book_id)
+
+        # Ensure the user is logged in
+        if not request.user.is_authenticated:
+            return redirect('login')
+
+        # Fetch the book content (e.g., cover image) based on ISBN
+        book_content = BookContent.objects.filter(id=book.ISBN_id).first()
+
+        # Prepare data for rendering
+        context = {
+            'book': book,
+            'book_content': book_content,
+        }
+
+        return render(request, 'purchase/purchase_details.html', context)
+
+    except Books.DoesNotExist:
+        messages.error(request, "Book not found.")
+        return redirect('book_list_student')
+
+#to view purchased books
+@login_required
+def purchased_books(request):
+    purchases = BookPurchase.objects.filter(user=request.user).select_related('book', 'book__author', 'book__genre')
+    return render(request, 'purchase/purchased_books.html', {'purchases': purchases})

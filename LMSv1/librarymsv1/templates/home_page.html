@@ -89,7 +89,7 @@
             color: #d9534f;
         }
 
-        .book-card .btn-rent {
+        .book-card .btn-rentandbuy {
             background-color: #d9534f;
             color: white;
             border: 2px solid #d9534f;
@@ -102,7 +102,7 @@
             margin-top: 10px;
         }
 
-        .book-card .btn-rent:hover {
+        .book-card .btn-rentandbuy:hover {
             background-color: white;
             color: #d9534f;
         }
@@ -139,6 +139,9 @@
             overflow: hidden;
             margin: 0; /* Remove any margin */
             padding: 0; /* Remove any padding */
+            background-image: url("{% static 'images/homepage.jpg' %}");
+            background-size: cover;
+            background-position: center;
         }
         
         body, html {
@@ -212,9 +215,10 @@
                     <img src="{{ book.ISBN.book_cover.url }}" alt="Book Cover">
                     <h3>{{ book.book_name }}</h3>
                     <p>{{ book.author.author_name }}</p>
-                    <p class="price"><strong>Price:</strong>₹{{ book.price }}</p>
-                    <p class="price"><strong>Rent: </strong>₹{{ book.rent }}</p>
-                    <a href="{% url 'rent_details' book.id %}" class="btn-rent">Rent</a>
+                    <p class="price"><strong>Price:</strong>₹ {{ book.price }}</p>
+                    <p class="price"><strong>Rent: </strong>₹ {{ book.rent }}</p>
+                    <a href="{% url 'rent_details' book.id %}" class="btn-rentandbuy">Rent</a>
+                    <a href="{% url 'purchase_details' book.id %}" class="btn-rentandbuy">Buy</a>
                 </div>
             {% endfor %}
         </div>

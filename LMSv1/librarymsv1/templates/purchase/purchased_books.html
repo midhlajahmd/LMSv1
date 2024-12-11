@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}QuillQuest - Purchased Books{% endblock %}
+
+{% block extra_css %}
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Reuse the styles from rented books */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .book-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 30px;
+            justify-items: center;
+            padding: 20px;
+        }
+
+        .book-card {
+            border: none;
+            border-radius: 10px;
+            text-align: center;
+            background-color: #fff;
+            box-shadow: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+            width: 250px;
+            overflow: hidden;
+            height: 500px;
+            margin-bottom: 0;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border: 2px solid #ddd;
+            margin-bottom: 30px;
+        }
+
+        .book-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            display: block;
+        }
+
+        .book-card h3 {
+            margin: 15px 0 5px;
+            font-size: 1.2em;
+        }
+
+        .book-card p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .price {
+            font-weight: bold;
+            font-size: 16px;
+            color: #d9534f;
+        }
+
+        .alert-container {
+            margin: 20px 0;
+            padding: 10px;
+        }
+
+        .alert {
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .alert.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .alert p {
+            margin: 0;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Purchased Books</h1>
+
+    <!-- Display messages for success or info alerts -->
+    {% if messages %}
+    <div class="alert-container">
+        {% for message in messages %}
+            <div class="alert {{ message.tags }}">
+                <p>{{ message }}</p>
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if purchases %}
+        <div class="book-list">
+            {% for purchase in purchases %}
+                <div class="book-card">
+                    <img src="{{ purchase.book.ISBN.book_cover.url }}" alt="Book Cover">
+                    <h3>{{ purchase.book.book_name }}</h3>
+                    <p>Author: {{ purchase.book.author.author_name }}</p>
+                    <p>Genre: {{ purchase.book.genre.genre_name }}</p>
+                    <p>Purchased On: <strong>{{ purchase.purchase_date|date:"M d, Y" }}</strong></p>
+                    <p class="price"><strong>Price:</strong> ₹{{ purchase.price }}</p>
+                    <p>Quantity: {{ purchase.quantity }}</p>
+                    <p>Address: {{ purchase.address }}</p>
+                    <p>Pincode: {{ purchase.pincode }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>You have not purchased any books yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
