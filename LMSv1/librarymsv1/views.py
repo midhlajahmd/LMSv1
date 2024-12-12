@@ -870,7 +870,7 @@ def browse_books(request):
         'message': 'Results found' if books else 'No results found',
     })
 
-def     read_book_interface(request, book_id):
+def read_book_interface(request, book_id):
     # Fetch the book object
     book = get_object_or_404(Books, id=book_id)
 
