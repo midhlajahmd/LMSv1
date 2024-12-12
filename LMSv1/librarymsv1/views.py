@@ -8,7 +8,10 @@ from django.contrib.auth.models import User,Group
 from .models import Books,Authors,Genres,MembershipPlan,StudentProfile,Rental,BookContent,Payment,BookPurchase
 from datetime import date, timedelta
 from django.utils import timezone
-
+from django.http import JsonResponse
+import json
+from django.urls import reverse
+from django.db.models import Q
 
 
 # Create your views here.
@@ -21,13 +24,34 @@ def user_login(request):
             login(request, user)
             # Redirect based on user roles or default
             if user.groups.filter(name='Librarian').exists():
-                return redirect('librarian_dashboard')
+                # Display alert and redirect
+                response = """
+                    <script>
+                        alert('Logged In Successfully.');
+                        window.location.href = '{}';
+                    </script>
+                """.format(reverse('librarian_dashboard'))
+                return HttpResponse(response)
             elif user.groups.filter(name='Student').exists():
-                return redirect('book_list_student')
+                # Display alert and redirect
+                response = """
+                    <script>
+                        alert('Logged In Successfully.');
+                        window.location.href = '{}';
+                    </script>
+                """.format(reverse('book_list_student'))
+                return HttpResponse(response)
             else:
                 return HttpResponse("NOt assigned a role")
         else:
-            messages.error(request, 'Invalid username or password.')
+            # Display alert and redirect
+            response = """
+                <script>
+                    alert('Invalid Username/Password');
+                    window.location.href = '{}';
+                </script>
+            """.format(reverse('login'))
+            return HttpResponse(response)
     else:
         form = LoginForm()
     
@@ -35,7 +59,13 @@ def user_login(request):
 
 def custom_logout(request):
     logout(request) #destroy all the session id for a particular user
-    return redirect('book_list_student')
+    response = """
+        <script>
+            alert('You are logged out.');
+            window.location.href = '{}';
+        </script>
+    """.format(redirect('book_list_student').url)
+    return HttpResponse(response)
 
 @login_required
 def librarian_dashboard(request):
@@ -75,6 +105,7 @@ def book_list(request):
     # Fetch the search term and filter status from the request
     search_term = request.GET.get('searchbook', '')
     status_filter = request.GET.get('status', '')
+    hidden_filter = request.GET.get('hidden', '')
 
     # Start with all books
     books = Books.objects.all()
@@ -87,6 +118,21 @@ def book_list(request):
     if status_filter:
         books = books.filter(status=status_filter)
 
+    # Exclude hidden books if a status filter is applied (Available or Unavailable)
+    if status_filter and status_filter in ['available', 'unavailable']:
+        books = books.exclude(hidden=True)
+    
+    # Apply hidden filter if a hidden status is provided
+    if hidden_filter:
+        # If hidden_filter is 'True', show hidden books, else show non-hidden books
+        if hidden_filter.lower() == 'true':
+            books = books.filter(hidden=True)
+        else:
+            books = books.filter(hidden=False)
+
+    if not status_filter and not hidden_filter:
+        books = books.exclude(hidden=True)    
+
     return render(request, 'books/book_list.html', {'books': books})
 
 #ADD NEW BOOK
@@ -95,18 +141,26 @@ def book_add(request):
         form = BookForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('book_list')  # Redirect after saving
+            # Display alert and redirect
+            response = """
+                <script>
+                    alert('Book added successfully!');
+                    window.location.href = '{}';
+                </script>
+            """.format(reverse('book_list'))
+            return HttpResponse(response)
+            # return redirect('book_list')  # Redirect after saving
     else:
         form = BookForm()  # Empty form for adding a new book
     
-    return render(request, 'books/book_form.html', {'form': form, 'title': 'Add Book'})
+    return render(request, 'books/book_form.html', {'form': form, 'title': 'Add a New Book'})
 
 #UPDATE EXISTING BOOK
 def book_edit(request, pk):
     book = get_object_or_404(Books, pk=pk)
 
     # Editable fields
-    editable_fields = ['price', 'rent_percentage', 'quantity', 'status','hidden']
+    editable_fields = ['price', 'rent_percentage', 'quantity', 'status','hidden','featured','bestseller','noteworthy','writeplace','top20','recommend',]
 
     # Initialize the form with POST data or existing instance
     form = BookForm(
@@ -121,7 +175,14 @@ def book_edit(request, pk):
 
     if form.is_valid():
         form.save()
-        return redirect('book_list')
+        # Display alert and redirect
+        response = """
+            <script>
+                alert('Book Edited successfully!');
+                window.location.href = '{}';
+            </script>
+        """.format(reverse('book_list'))
+        return HttpResponse(response)
 
     return render(request, 'books/book_form.html', {'form': form, 'title': 'Edit Book'})
 
@@ -130,8 +191,16 @@ def book_edit(request, pk):
 def book_delete(request, pk):
     book = get_object_or_404(Books, pk=pk)
     if request.method == 'POST':
-        book.delete()
-        return redirect('book_list')
+        book.hidden = True  # Set the 'hidden' field to True instead of deleting
+        book.save()  # Save the updated book
+        # Display alert and redirect
+        response = """
+            <script>
+                alert('Book deleted successfully!');
+                window.location.href = '{}';
+            </script>
+        """.format(reverse('book_list'))
+        return HttpResponse(response)
     return render(request, 'books/book_confirm_delete.html', {'book': book})
 
 # View to display list of authors
@@ -180,7 +249,15 @@ def delete_author(request, pk):
 
 # View to display the list of genres
 def genre_list(request):
-    genres = Genres.objects.all()
+    # Get the search query from the GET request
+    search_query = request.GET.get('searchgenre', '')
+    
+    # If there's a search query, filter authors by the author_name
+    if search_query:
+        genres = Genres.objects.filter(genre_name__icontains=search_query)
+    else:
+        # If no search query, get all authors
+        genres = Genres.objects.all()
     return render(request, 'genres/genre_list.html', {'genres': genres})
 
 # View to add a new genre
@@ -280,13 +357,67 @@ def upgrade_plan(request, plan_id):
 def student_profile(request):
     return render(request, 'student_profile.html')
 
+from django.db.models import Q
+
 def book_list_student(request):
+    # # Get the search query from the GET request
+    # search_query = request.GET.get('searchbook', '').strip()
+
+    # # Start with filtering books that are not hidden
+    # books = Books.objects.filter(hidden=False)
+
+    # if search_query:
+    #     # Filter by book name, author name, and genre name
+    #     books = books.filter(
+    #         Q(book_name__icontains=search_query) |
+    #         Q(author__author_name__icontains=search_query) |
+    #         Q(genre__genre_name__icontains=search_query)
+    #     )
+    #     message = f"Search results for '{search_query}'" if books.exists() else f"No results for '{search_query}'"
+    # else:
+    #     message = f"No results for {search_query}"
+
+    # return render(request, 'home_page.html', {'books': books, 'message': message, 'search_query': search_query})
+    # Get the search query from the GET request
+    search_query = request.GET.get('searchbook', '').strip()
+
+    # Start with filtering books that are not hidden
     books = Books.objects.filter(hidden=False)
-    return render(request, 'home_page.html', {'books': books})
+
+    if search_query:
+        # Filter by book name, author name, and genre name
+        books = books.filter(
+            Q(book_name__icontains=search_query) |
+            Q(author__author_name__icontains=search_query) |
+            Q(genre__genre_name__icontains=search_query)
+        )
+        message = f"Search results for '{search_query}'" if books.exists() else f"No results for '{search_query}'"
+        # Skip grouping by categories if search query is provided
+        categories = None
+    else:
+        message = None
+        # Group books by categories
+        categories = {
+            'Featured Books': books.filter(featured=True),
+            'Bestsellers': books.filter(bestseller=True),
+            'New & Noteworthy': books.filter(noteworthy=True),
+            'The Writeplace Books': books.filter(writeplace=True),
+            'Top 20': books.filter(top20=True),
+            'QuillQuest Recommends': books.filter(recommend=True),
+        }
+
+    return render(request, 'home_page.html', {
+        'categories': categories,
+        'books': books if search_query else None,  # Pass all books only if a search is made
+        'message': message,
+        'search_query': search_query
+    })
+
 
 # Rent a book
 # Check if the user is logged in and has a membership plan
 # Integrated payment
+@login_required
 def rent_book(request, book_id):
     try:
         # Get the book by ID
@@ -294,13 +425,19 @@ def rent_book(request, book_id):
 
         # Ensure the user is logged in (this is already ensured by @login_required)
         # Check if the student profile exists
-        try:
-            student_profile = StudentProfile.objects.get(user=request.user)
-        except StudentProfile.DoesNotExist:
-            # If no membership exists, redirect to the profile creation page
-            messages.error(request, "You need to subscribe to a plan first")
-            return redirect('view_membership_plans')  # Assuming 'student_profile' is the profile creation page
-
+        student_profile = StudentProfile.objects.get(user=request.user)
+        membership_plan = student_profile.membership_plan
+        if not membership_plan:
+            # Display alert and redirect
+            response = """
+                <script>
+                    alert('You need to subscribe to a membership plan to rent books.');
+                    window.location.href = '{}';
+                </script>
+            """.format(reverse('view_membership_plans'))
+            return HttpResponse(response)
+        
+        
         # Check if the user has exceeded the rental limit
         active_rentals_count = Rental.objects.filter(
             student_profile=student_profile,
@@ -591,3 +728,143 @@ def purchase_details(request, book_id):
 def purchased_books(request):
     purchases = BookPurchase.objects.filter(user=request.user).select_related('book', 'book__author', 'book__genre')
     return render(request, 'purchase/purchased_books.html', {'purchases': purchases})
+
+#DYNAMIC AUTHOR AND GENRE ADDING
+def add_author_book(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            new_author_name = data.get('author_name')
+            if new_author_name:
+                author = Authors.objects.create(author_name=new_author_name)
+                return JsonResponse({'success': True, 'author_id': author.id, 'author_name': author.name})
+            return JsonResponse({'success': False, 'error': 'Author name is required'})
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'error': 'Invalid JSON'})
+def add_genre_book(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            new_genre_name = data.get('genre_name')
+            if new_genre_name:
+                genre = Genres.objects.create(genre_name=new_genre_name)
+                return JsonResponse({'success': True, 'genre_id': genre.id, 'genre_name': genre.name})
+            return JsonResponse({'success': False, 'error': 'Genre name is required'})
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'error': 'Invalid JSON'})
+
+#ADMIN VIEW STUDENT LIST
+def student_list(request):
+    # Get the search query
+    search_query = request.GET.get('searchname', '')
+
+    # Filter students by username or first name (case-insensitive)
+    students = StudentProfile.objects.filter(user__isnull=False)
+    if search_query:
+        students = students.filter(
+            Q(user__username__icontains=search_query) |
+            Q(user__first_name__icontains=search_query)
+        )
+
+    context = {
+        'students': students,
+        'search_query': search_query,
+    }
+    return render(request, 'student_list.html', context)
+
+#ADMIN RENTAL LIST
+def admin_rental_list(request):
+    # Get the search query and rental status filter from the request
+    search_query = request.GET.get('search', '')
+    status_filter = request.GET.get('status', '')
+
+    # Start with all rentals
+    rentals = Rental.objects.select_related('student_profile', 'book')
+
+    # Apply search filter if search_query is provided
+    if search_query:
+        rentals = rentals.filter(
+            Q(student_profile__user__first_name__icontains=search_query) |  # Search by student's first name
+            Q(book__book_name__icontains=search_query)  # Search by book name
+        )
+
+    # Apply status filter if status_filter is provided
+    if status_filter:
+        if status_filter == 'rented':
+            rentals = rentals.filter(is_rented=True)
+        elif status_filter == 'returned':
+            rentals = rentals.filter(is_rented=False)
+
+    context = {
+        'rentals': rentals,
+        'search_query': search_query,
+        'status_filter': status_filter,
+    }
+
+    return render(request, 'admin_rental_list.html', context)
+
+def admin_purchase_list(request):
+    # Get the search query from GET parameters
+    search_query = request.GET.get('search', '')
+    
+    # Filter purchases based on search query (search by book name, user's first name, etc.)
+    purchases = BookPurchase.objects.all()
+
+    if search_query:
+        purchases = purchases.filter(
+            Q(book__book_name__icontains=search_query) |
+            Q(user__first_name__icontains=search_query)
+        )
+
+    context = {
+        'purchases': purchases,
+        'search_query': search_query,
+    }
+    return render(request, 'purchase_list.html', context)
+
+def book_detail(request, book_id):
+    book = get_object_or_404(Books, id=book_id)
+    book_content = book.ISBN  # Accessing the related BookContent through the ISBN ForeignKey
+    return render(request, 'book_detail.html', {'book': book, 'book_content': book_content})
+
+def browse_books(request):
+    search_query = request.GET.get('searchbook', '')
+    selected_genre_id = request.GET.get('genre')
+    selected_author_id = request.GET.get('author')
+
+    # Start with all books
+    books = Books.objects.all()
+
+    # Filter by genre if selected
+    if selected_genre_id:
+        books = books.filter(genre__id=selected_genre_id)
+
+    # Filter by author if selected
+    if selected_author_id:
+        books = books.filter(author__id=selected_author_id)
+
+    # Optionally add the search query filter
+    if search_query:
+        books = books.filter(
+            Q(book_name__icontains=search_query) |
+            Q(author__author_name__icontains=search_query) |
+            Q(genre__genre_name__icontains=search_query)
+        )
+
+    # Get the genres and authors for the filters
+    genres = Genres.objects.all()
+    authors = Authors.objects.all()
+
+    # Get the selected genre and author objects to pass to the template
+    selected_genre = Genres.objects.filter(id=selected_genre_id).first() if selected_genre_id else None
+    selected_author = Authors.objects.filter(id=selected_author_id).first() if selected_author_id else None
+
+    return render(request, 'browse_books.html', {
+        'books': books,
+        'genres': genres,
+        'authors': authors,
+        'selected_genre': selected_genre,
+        'selected_author': selected_author,
+        'search_query': search_query,
+        'message': 'Results found' if books else 'No results found',
+    })

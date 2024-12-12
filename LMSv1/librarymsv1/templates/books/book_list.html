@@ -14,6 +14,7 @@
         text-align: center;
         color: #333; /* Dark text color */
         margin-bottom: 20px;
+        margin-top:20px;
     }
 
     /* Back Button Styles */
@@ -27,11 +28,18 @@
         border-radius: 5px;
         font-weight: 600;
         text-align: center;
+        width: fit-content;
     }
 
     .btn-back:hover {
         background-color: #555; /* Lighter on hover */
     }
+    /* Back Button Styles */
+    .btn-back-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+}
 
     /* Search and Add Book Button Container */
     .actions-container {
@@ -40,7 +48,7 @@
         justify-content: center;
         align-items: center;
         gap: 20px;
-        margin-bottom: 20px;
+        margin-bottom: 10   px;
     }
 
     /* Search Container Styles */
@@ -60,6 +68,7 @@
         border: 1px solid #ccc; /* Subtle border */
         border-radius: 5px;
         font-size: 14px;
+        width:300px;
     }
 
     .search-container button {
@@ -80,7 +89,7 @@
     .filter-buttons {
         display: flex;
         gap: 10px;
-        margin-top: 20px;
+        margin-top: 5px;
     }
 
     .filter-buttons button {
@@ -186,12 +195,15 @@
     .btn-delete:hover {
         background-color: #c82333; /* Darker red */
     }
+    h1 {
+        text-align: center;
+        margin-top: 20px;
+        margin-bottom:20px;
+    }
 </style>
 
-<!-- Back Button -->
-<a href="{% url 'librarian_dashboard' %}" class="btn-back">Back</a>
 
-<h2><strong>Book List</strong></h2>
+<h1><strong>Books</strong></h1>
 
 <!-- Search and Filter Container -->
 <div class="actions-container">
@@ -207,10 +219,8 @@
         <a href="?status="><button>All</button></a>
         <a href="?status=available"><button>Available</button></a>
         <a href="?status=unavailable"><button>Unavailable</button></a>
+        <a href="?hidden=true"><button>Hidden</button></a>
     </div>
-
-    <!-- Add Book Button -->
-    <a href="{% url 'book_add' %}">Add Book</a>
 </div>
 
 <!-- Book Table -->
@@ -234,7 +244,7 @@
             <td>{{ book.book_name }}</td>
             <td>{{ book.genre }}</td>
             <td>{{ book.author }}</td>
-            <td>{{ book.ISBN }}</td>
+            <td>{{ book.ISBN.isbn }}</td>
             <td>{{ book.price }}</td>
             <td>{{ book.rent }}</td>
             <td>{{ book.status }}</td>
@@ -247,4 +257,13 @@
         {% endfor %}
     </tbody>
 </table>
+
+<!-- Add Book Button -->
+<div class="btn-back-container">
+    <a href="{% url 'book_add' %}">Add a New Book</a>
+</div>
+<!-- Back Button -->
+<div class="btn-back-container">
+    <a href="{% url 'librarian_dashboard' %}" class="btn-back">Back to Dashboard</a>
+</div>
 {% endblock %}

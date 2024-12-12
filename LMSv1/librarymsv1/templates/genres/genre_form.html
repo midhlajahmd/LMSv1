@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
 
 {% block body %}
-  <h1>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Genre</h1>
-  <form method="post">
+<h1 style="margin-top:20px;" class="form-title">{% if form.instance.pk %}Edit{% else %}Add{% endif %} Genres</h1>
+  <form method="post" class="author-form">
     {% csrf_token %}
     <div class="form-group">
       <label for="id_genre_name">Genre Name</label>
       {{ form.genre_name }}
     </div>
-    <button type="submit" class="btn btn-primary">{% if form.instance.pk %}Save Changes{% else %}Add Genre{% endif %}</button>
+    <button type="submit" class="btn-submit">{% if form.instance.pk %}Save Changes{% else %}Add Genre{% endif %}</button>
+    <a href="{% url 'librarian_dashboard' %}" class="cancel-link">Cancel</a>
   </form>
 {% endblock %}

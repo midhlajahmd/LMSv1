@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block body %}
-<h1 class="form-title">{% if form.instance.pk %}Edit{% else %}Add{% endif %} Author</h1>
+<h1 style="margin-top:20px;" class="form-title">{% if form.instance.pk %}Edit{% else %}Add{% endif %} Author</h1>
 <form method="post" class="author-form">
     {% csrf_token %}
     <div class="form-group">
@@ -9,6 +9,6 @@
         {{ form.author_name }}
     </div>
     <button type="submit" class="btn-submit">{% if form.instance.pk %}Save Changes{% else %}Add Author{% endif %}</button>
-    <a href="{% url 'author_list' %}" class="cancel-link">Cancel</a>
+    <a href="{% url 'librarian_dashboard' %}" class="cancel-link">Cancel</a>
 </form>
 {% endblock %}

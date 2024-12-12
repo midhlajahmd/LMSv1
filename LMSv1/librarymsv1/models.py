@@ -31,6 +31,7 @@ class BookContent(models.Model):
     book_name= models.CharField(max_length=200, null=True)
     book_content = models.FileField(upload_to='book_contents/')  # PDF file upload path
     book_cover = models.ImageField(upload_to='book_covers/')     # Image upload path
+    description = models.TextField(null=True, blank=True) 
 
     def __str__(self):
         return f'{self.isbn} - {self.book_name}'
@@ -51,6 +52,12 @@ class Books(models.Model):
     quantity = models.PositiveIntegerField(null= True)
     added_date = models.DateTimeField(default=timezone.now)
     hidden= models.BooleanField(default=False)
+    featured= models.BooleanField(default=False)
+    bestseller= models.BooleanField(default=False)
+    noteworthy= models.BooleanField(default=False)
+    writeplace= models.BooleanField(default=False)
+    top20= models.BooleanField(default=False)
+    recommend= models.BooleanField(default=False)
     
     #rent is automatically updated
     rent = models.DecimalField(max_digits=8, decimal_places=2, editable=False, null=True)

@@ -2,18 +2,68 @@
 
 {% block body %}
 
+<style>
+    .dashboard {
+        max-width: 800px;
+        margin: 30px auto;
+        padding: 20px;
+        background-color: #f9f9f9; /* Light background for the dashboard */
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+        text-align: center;
+    }
+
+    .welcome-message1 {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #333; /* Neutral text color */
+        margin-bottom: 20px;
+    }
+
+    .profile-actions {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .profile-actions li {
+        margin: 10px 0;
+    }
+
+    .profile-actions .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 1rem;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 5px;
+        background-color: #007bff; /* Default button color */
+        transition: background-color 0.3s ease;
+    }
+
+    .profile-actions .btn:hover {
+        background-color: #0056b3; /* Darker blue on hover */
+    }
+
+    .logout-btn {
+        background-color: #dc3545; /* Red color for logout */
+    }
+
+    .logout-btn:hover {
+        background-color: #b02a37; /* Darker red on hover */
+    }
+</style>
+
 <div class="dashboard">
     <div class="profile-info">
-        <h2>Welcome <strong>{{ user.first_name }}</strong></h2>
-        <ul>
-            <li><a href="#" class="btn btn-secondary">View & Edit Profile</a></li>
+        {% comment %} <h2 class="welcome-message1">Hi <strong>{{ user.first_name }}</strong></h2> {% endcomment %}
+        <ul class="profile-actions">
+            {% comment %} <li><a href="#" class="btn btn-secondary">View & Edit Profile</a></li> {% endcomment %}
             <li><a href="{% url 'view_membership_plans' %}" class="btn btn-secondary">View & Edit Membership Plans</a></li>
-            <li><a href="#" class="btn btn-secondary">View Purchased Books</a></li>
-            <li><a href="{% url 'rented_books'%}" class="btn btn-secondary">View Rented Books</a></li>
-            <li><a href="{% url 'logout' %}" class="btn btn-secondary">Logout</a></li>
+            <li><a href="{% url 'purchased_books' %}" class="btn btn-secondary">View Purchased Books</a></li>
+            <li><a href="{% url 'rented_books' %}" class="btn btn-secondary">View Rented Books</a></li>
+            <li><a href="{% url 'book_list_student' %}" class="btn btn-secondary logout-btn">Back to Dashboard</a></li>
         </ul>
     </div>
-
 </div>
 
 {% endblock %}

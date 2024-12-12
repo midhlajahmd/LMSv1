@@ -1,10 +1,75 @@
 {% extends 'base.html' %}
+
 {% block body %}
-<h1>Confirm Delete</h1>
-<p>Are you sure you want to delete "{{ book.book_name }}"?</p>
-<form method="post">
-    {% csrf_token %}
-    <button type="submit">Yes, delete</button>
-    <a href="{% url 'book_list' %}">Cancel</a>
-</form>
+<h1 class="confirm-title">Confirm Delete</h1>
+<p class="confirm-message">Are you sure you want to delete <strong>"{{ book.book_name }}"</strong>?</p>
+<div class="confirm-buttons">
+    <form method="post" class="confirm-form">
+        {% csrf_token %}
+        <button type="submit" class="btn-delete">Yes, delete</button>
+    </form>
+    <a href="{% url 'book_list' %}" class="btn-cancel">Cancel</a>
+</div>
+{% endblock %}
+
+{% block style %}
+<style>
+    /* Styling for the confirmation page */
+    .confirm-title {
+        text-align: center;
+        font-size: 2em;
+        margin-bottom: 20px;
+        color: #e74c3c; /* Red color for the delete confirmation */
+    }
+
+    .confirm-message {
+        text-align: center;
+        font-size: 1.2em;
+        margin-bottom: 20px;
+        color: #333;
+    }
+
+    .confirm-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .confirm-form {
+        display: inline-block;
+    }
+
+    button, .btn-cancel {
+        padding: 12px 20px;
+        font-size: 1em;
+        border-radius: 5px;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    /* Delete button styling */
+    .btn-delete {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-delete:hover {
+        background-color: #c0392b;
+    }
+
+    /* Cancel button styling */
+    .btn-cancel {
+        background-color: #f1f1f1;
+        color: #333;
+        border: 1px solid #ccc;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-cancel:hover {
+        background-color: #ddd;
+        text-decoration: none;
+    }
+</style>
 {% endblock %}

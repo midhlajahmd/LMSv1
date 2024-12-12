@@ -1,10 +1,281 @@
 {% extends 'base.html' %}
+
 {% block body %}
-<h1>{{ title }}</h1>
-<form method="post" class="book-form">
+<h2 style="text-align: center; margin-bottom: 20px; margin-top:30px;">{{title}}</h2>
+<form method="post" class="book-form" id="book-form">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save</button>
-    <a href="{% url 'book_list' %}">Cancel</a>
+
+    <!-- Book Name Field -->
+    <div class="form-field">
+        <label for="id_book_name">Book Name:</label>
+        {{ form.book_name }}
+    </div>
+
+    <!-- Author Dropdown with Inline Form -->
+    <div class="form-field" style="display: flex; flex-direction: column;">
+        <label for="id_author">Author:</label>
+        <div style="display: flex; align-items: center;">
+            {{ form.author }}
+            <button type="button" id="add-author-btn" style="margin-left: 10px;">+</button>
+        </div>
+        <div id="new-author-form" style="display: none; margin-top: 10px;">
+            <input type="text" id="new-author-name" placeholder="New Author Name" style="width: 50%;">
+            <button type="button" id="save-author-btn" >Save New Author</button>
+            <button type="button" id="refresh-author-btn">⟳</button>
+        </div>
+    </div>
+
+    <!-- Genre Dropdown with Inline Form -->
+    <div class="form-field" style="display: flex; flex-direction: column; margin-top: 10px;">
+        <label for="id_genre">Genre:</label>
+        <div style="display: flex; align-items: center;">
+            {{ form.genre }}
+            <button type="button" id="add-genre-btn" style="margin-left: 10px;">+</button>
+        </div>
+        <div id="new-genre-form" style="display: none; margin-top: 10px;">
+            <input type="text" id="new-genre-name" placeholder="New Genre Name" style="width: 50%;">
+            <button type="button" id="save-genre-btn">Save New Genre</button>
+            <button type="button" id="refresh-genre-btn">⟳</button>
+        </div>
+    </div>
+
+    <!-- Other Fields (ISBN, Price, Rent Percentage, etc.) -->
+    <div class="form-field">
+        <label for="id_ISBN">ISBN:</label>
+        {{ form.ISBN }}
+    </div>
+    <div class="form-field">
+        <label for="id_price">Price:</label>
+        {{ form.price }}
+    </div>
+    <div class="form-field">
+        <label for="id_rent_percentage">Rent Percentage:</label>
+        {{ form.rent_percentage }}
+    </div>
+    <div class="form-field">
+        <label for="id_status">Status:</label>
+        {{ form.status }}
+    </div>
+    <div class="form-field">
+        <label for="id_quantity">Quantity:</label>
+        {{ form.quantity }}
+    </div>
+    <div class="form-field">
+        <label for="id_added_date">Added Date:</label>
+        {{ form.added_date }}
+    </div>
+    <div class="form-field">
+        <label for="id_hidden">Hidden:</label>
+        {{ form.hidden }}
+    </div>
+    <div class="form-field">
+        <label for="id_featured">Featured:</label>
+        {{ form.featured }}
+    </div>
+    <div class="form-field">
+        <label for="id_bestseller">BestSeller:</label>
+        {{ form.bestseller }}
+    </div>
+    <div class="form-field">
+        <label for="id_noteworthy">Noteworthy:</label>
+        {{ form.noteworthy }}
+    </div>
+    <div class="form-field">
+        <label for="id_writeplace">Writeplace:</label>
+        {{ form.writeplace }}
+    </div>
+    <div class="form-field">
+        <label for="id_top20">Top 20:</label>
+        {{ form.top20 }}
+    </div>
+    <div class="form-field">
+        <label for="id_recommend">Recommends:</label>
+        {{ form.recommend }}
+    </div>
+
+
+    <button type="submit" class="btn-submit">Save</button>
+    <a href="{% url 'librarian_dashboard' %}" class="cancel-btn">Cancel</a>
 </form>
+{% endblock %}
+
+{% block script %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Show/hide inline author form
+        document.getElementById('add-author-btn').addEventListener('click', function () {
+            document.getElementById('new-author-form').style.display = 'block';
+        });
+    
+        // Save new author
+        document.getElementById('save-author-btn').addEventListener('click', function () {
+            const authorName = document.getElementById('new-author-name').value.trim();
+            if (authorName) {
+                fetch("{% url 'add_author_book' %}", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ author_name: authorName })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Add the new author to a hidden input field
+                        const newAuthorInput = document.createElement('input');
+                        newAuthorInput.type = 'hidden';
+                        newAuthorInput.name = 'new_author';
+                        newAuthorInput.value = data.author_id;
+                        document.getElementById('new-author-inputs').appendChild(newAuthorInput);
+                        
+                        // Select the newly added author in the dropdown
+                        const authorSelect = document.getElementById('id_author');
+                        const newOption = new Option(data.author_name, data.author_id);
+                        authorSelect.appendChild(newOption);
+                        authorSelect.value = data.author_id; // Set the new author as selected
+                        
+                        document.getElementById('new-author-form').style.display = 'none';
+                        document.getElementById('new-author-name').value = '';
+                    } else {
+                        alert("Failed to add author.");
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            } else {
+                alert("Author name cannot be empty.");
+            }
+        });
+         // Refresh page after saving author
+         document.getElementById('refresh-author-btn').addEventListener('click', function () {
+            location.reload(); // Refresh the page
+        });
+    
+        // Show/hide inline genre form
+        document.getElementById('add-genre-btn').addEventListener('click', function () {
+            document.getElementById('new-genre-form').style.display = 'block';
+        });
+    
+        // Save new genre
+        document.getElementById('save-genre-btn').addEventListener('click', function () {
+            const genreName = document.getElementById('new-genre-name').value.trim();
+            if (genreName) {
+                fetch("{% url 'add_genre_book' %}", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ genre_name: genreName })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Add the new genre to a hidden input field
+                        const newGenreInput = document.createElement('input');
+                        newGenreInput.type = 'hidden';
+                        newGenreInput.name = 'new_genre';
+                        newGenreInput.value = data.genre_id;
+                        document.getElementById('new-genre-inputs').appendChild(newGenreInput);
+                        
+                        // Select the newly added genre in the dropdown
+                        const genreSelect = document.getElementById('id_genre');
+                        const newOption = new Option(data.genre_name, data.genre_id);
+                        genreSelect.appendChild(newOption);
+                        genreSelect.value = data.genre_id; // Set the new genre as selected
+                        
+                        document.getElementById('new-genre-form').style.display = 'none';
+                        document.getElementById('new-genre-name').value = '';
+                    } else {
+                        alert("Failed to add genre.");
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            } else {
+                alert("Genre name cannot be empty.");
+            }
+        });
+        document.getElementById('refresh-genre-btn').addEventListener('click', function () {
+            location.reload(); // Refresh the page
+        });
+    });           
+</script>
+{% endblock %}
+{% block extra_css %}
+<style>
+    /* Styling for Inline Forms (Add Author / Genre) */
+    #new-author-form,
+    #new-genre-form {
+        display: none;
+        margin-top: 10px;
+    }
+
+    #new-author-form input,
+    #new-genre-form input {
+        width: 50%;
+        padding: 8px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        margin-right: 10px;
+    }
+
+    /* Save Buttons for New Author and Genre */
+    #save-author-btn,
+    #save-genre-btn {
+        background-color: #e74c3c;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+        margin-left: 10px;
+    }
+
+    #save-author-btn:hover,
+    #save-genre-btn:hover {
+        background-color: #45a049;
+    }
+
+    /* Refresh Buttons for Author and Genre */
+    #refresh-author-btn,
+    #refresh-genre-btn {
+        background-color: #f1f1f1;
+        color: #333;
+        padding: 8px 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-left: 10px;
+    }
+
+    #refresh-author-btn:hover,
+    #refresh-genre-btn:hover {
+        background-color: #ddd;
+    }
+
+    /* Cancel Button Styling */
+    .cancel-btn {
+        display: inline-block;
+        margin-top: 20px;
+        text-decoration: none;
+        color: #333;
+        font-weight: bold;
+        padding: 10px;
+    }
+
+    .cancel-btn:hover {
+        text-decoration: underline;
+    }
+    /* Form Field Styling */
+    .form-field {
+        margin-bottom: 10px;
+    }
+
+    .form-field label {
+        font-weight: bold;
+        margin-bottom: 8px;
+        display: block;
+    }
+</style>
 {% endblock %}

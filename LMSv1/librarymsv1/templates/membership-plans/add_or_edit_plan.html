@@ -1,51 +1,141 @@
-{% comment %} ADMIN SIDE {% endcomment %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Membership Plan</title>
-    <!-- Bootstrap CSS -->
-    <link 
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" 
-        rel="stylesheet">
-    <style>
-        .form-container {
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #f9f9f9;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        .form-title {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-        }
-    </style>
-</head>
-<body>
+{% extends 'base.html' %}
+
+{% block body %}
+<style>
+    /* General Styles */
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f8f9fa; /* Light gray background */
+        color: #333; /* Neutral text color */
+        margin: 0;
+        padding: 0;
+    }
+
+    .form-container {
+        width: 50%;
+        margin: 50px auto;
+        padding: 30px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        border: 2px solid #e74c3c; /* Red border for red theme */
+    }
+
+    h1.form-title {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #e74c3c; /* Red color for title */
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        font-size: 14px;
+        font-weight: bold;
+        color: #e74c3c; /* Red label text */
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    .form-group input, .form-group select, .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 14px;
+        color: #333;
+        background-color: #f9f9f9;
+    }
+
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+        border-color: #e74c3c; /* Red border on focus */
+        outline: none;
+    }
+
+    .btn-submit {
+        display: inline-block;
+        padding: 12px 20px;
+        background-color: #e74c3c; /* Red background */
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 14px;
+        text-align: center;
+        width: 100%;
+        cursor: pointer;
+    }
+
+    .btn-submit:hover {
+        background-color: #c0392b; /* Darker red on hover */
+    }
+
+    .cancel-link {
+        display: inline-block;
+        padding: 12px 20px;
+        text-decoration: none;
+        background-color: #dc3545; /* Slightly lighter red */
+        color: white;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 14px;
+        text-align: center;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .cancel-link:hover {
+        background-color: #c82333; /* Darker red on hover */
+    }
+
+    /* Back Button */
+    .btn-link {
+        font-weight: bold;
+        text-decoration: none;
+        color: #e74c3c; /* Red color for back button */
+    }
+
+    .btn-link:hover {
+        color: #c0392b; /* Darker red on hover */
+    }
+
+</style>
+
 <div class="container">
     <div class="form-container">
         <h1 class="form-title">{% if form.instance.pk %}Edit{% else %}Add{% endif %} Membership Plan</h1>
         <form method="post" class="needs-validation" novalidate>
             {% csrf_token %}
-            {{ form.as_p }}
+            <div class="form-group">
+                <label for="id_plan_name">Plan Name</label>
+                {{ form.plan_name }}
+            </div>
+            <div class="form-group">
+                <label for="id_rent_limit">Rent Limit</label>
+                {{ form.rent_limit }}
+            </div>
+            <div class="form-group">
+                <label for="id_rent_duration">Rent Duration</label>
+                {{ form.rent_duration }}
+            </div>
+            <div class="form-group">
+                <label for="id_plan_duration">Plan Duration</label>
+                {{ form.plan_duration }}
+            </div>
+            <div class="form-group">
+                <label for="id_fee">Fee</label>
+                {{ form.fee }}
+            </div>
             <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="submit" class="btn-submit">Save</button>
             </div>
         </form>
         <div class="mt-3 text-center">
-            <a href="{% url 'manage_membership_plans' %}" class="btn btn-link">Back</a>
+            <a href="{% url 'manage_membership_plans' %}" class="btn-link">Back</a>
         </div>
     </div>
 </div>
 
-<!-- Bootstrap JS (optional) -->
-<script 
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js">
-</script>
-</body>
-</html>
+{% endblock %}

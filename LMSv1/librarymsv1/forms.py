@@ -54,7 +54,37 @@ class BookForm(forms.ModelForm):
     class Meta:
         model = Books
         fields = '__all__'
-
+        widgets = {
+            'hidden': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'style': 'width: 10px; height: 8px;',
+            }),
+            'featured': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'style': 'width: 10px; height: 8px;',
+            }),
+            'bestseller': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'style': 'width: 10px; height: 8px;',
+            }),
+            'noteworthy': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'style': 'width: 10px; height: 8px;',
+            }),
+            'writeplace': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'style': 'width: 10px; height: 8px;',
+            }),
+            'top20': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'style': 'width: 10px; height: 8px;',
+            }),
+            'recommend': forms.CheckboxInput(attrs={
+                'class': 'form-check-input',
+                'style': 'width: 10px; height: 8px;',
+            }),
+            
+        }
 #AUTHORS
 class AuthorForm(forms.ModelForm):
     class Meta:

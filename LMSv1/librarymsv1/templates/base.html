@@ -1,278 +1,287 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {% load static %}
-    <link rel="icon" href="{% static 'images/logo.avif' %}">
-    <title>{% block title %}QuillQuest {% endblock %}</title>
-    <!-- BOOTSTRAP CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    {% block style %}{% endblock %}
-    {% block extra_css %}{% endblock %} 
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% load static %}
+<link rel="icon" href="{% static 'images/logo.avif' %}">
+<title>{% block title %}QuillQuest {{title}} {% endblock %}</title>
+<!-- BOOTSTRAP CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+{% block style %}{% endblock %}
+{% block extra_css %}{% endblock %} 
 </head>
 <style>
-    .book-form {
-        max-width: 600px;
-        margin: 30px auto;
-        padding: 20px;
-        background-color: #f9f9f9;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        font-family: 'Poppins', sans-serif;
-    }
+.book-form {
+    max-width: 580px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-family: 'Poppins', sans-serif;
 
-    .book-form h1 {
-        color: #e74c3c; /* Soft Red */
-        font-weight: 600;
-        text-align: center;
-        margin-bottom: 20px;
-    }
+}
 
-    .book-form form {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
+.book-form h1 {
+    color: #e74c3c; /* Soft Red */
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 20px;
+}
 
-    .book-form form button {
-        padding: 12px;
-        background-color: #e74c3c; /* Soft Red */
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: 600;
-    }
+.book-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
 
-    .book-form form button:hover {
-        background-color: #c0392b; /* Darker Red */
-    }
+.book-form form button {
+    padding: 12px;
+    background-color: #e74c3c; /* Soft Red */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+}
 
-    .book-form a {
-        text-align: center;
-        display: block;
-        color: #e74c3c;
-        text-decoration: none;
-        font-weight: 400;
-    }
+.book-form form button:hover {
+    background-color: #c0392b; /* Darker Red */
+}
 
-    .book-form a:hover {
-        color: #c0392b;
-    }
+.book-form a {
+    text-align: center;
+    display: block;
+    color: #e74c3c;
+    text-decoration: none;
+    font-weight: 400;
+}
 
-    /* Style the form fields */
-    .book-form .form-row {
-        margin-bottom: 15px;
-    }
+.book-form a:hover {
+    color: #c0392b;
+}
 
-    .book-form input, .book-form select, .book-form textarea {
-        width: 100%;
-        padding: 10px;
-        margin-top: 5px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        font-size: 16px;
-        font-family: 'Poppins', sans-serif;
-    }
+/* Style the form fields */
+.book-form .form-row {
+    margin-bottom: 15px;
+}
 
-    .book-form input:focus, .book-form select:focus, .book-form textarea:focus {
-        border-color: #e74c3c;
-        outline: none;
-    }
-    body {
-        font-family: 'Poppins', sans-serif;
-    }
+.book-form input, .book-form select, .book-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+}
 
-    .author-form {
-        max-width: 600px;
-        margin: 30px auto;
-        padding: 20px;
-        background-color: #f9f9f9;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
+.book-form input:focus, .book-form select:focus, .book-form textarea:focus {
+    border-color: #e74c3c;
+    outline: none;
+}
+body {
+    font-family: 'Poppins', sans-serif;
+}
 
-    .form-title {
-        color: #e74c3c; /* Soft Red */
-        font-weight: 600;
-        text-align: center;
-        margin-bottom: 20px;
-    }
+.author-form {
+    max-width: 600px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-    .author-form form {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
+.form-title {
+    color: #e74c3c; /* Soft Red */
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 20px;
+}
 
-    .author-form .form-group {
-        margin-bottom: 15px;
-    }
+.author-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
 
-    .author-form input, .author-form select, .author-form textarea {
-        width: 100%;
-        padding: 10px;
-        margin-top: 5px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        font-size: 16px;
-        font-family: 'Poppins', sans-serif;
-    }
+.author-form .form-group {
+    margin-bottom: 15px;
+}
 
-    .author-form input:focus, .author-form select:focus, .author-form textarea:focus {
-        border-color: #e74c3c;
-        outline: none;
-    }
+.author-form input, .author-form select, .author-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    font-family: 'Poppins', sans-serif;
+}
 
-    /* Submit Button */
-    .btn-submit {
-        padding: 12px;
-        background-color: #e74c3c; /* Soft Red */
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-weight: 600;
-        text-align: center;
-    }
+.author-form input:focus, .author-form select:focus, .author-form textarea:focus {
+    border-color: #e74c3c;
+    outline: none;
+}
 
-    .btn-submit:hover {
-        background-color: #c0392b; /* Darker Red */
-    }
+/* Submit Button */
+.btn-submit {
+    padding: 12px;
+    background-color: #e74c3c; /* Soft Red */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    text-align: center;
+    width: 100%;
+}
 
-    /* Cancel Link */
-    .cancel-link {
-        text-align: center;
-        display: block;
-        color: #e74c3c;
-        text-decoration: none;
-        font-weight: 400;
-    }
+.btn-submit:hover {
+    background-color: #c0392b; /* Darker Red */
+}
 
-    .cancel-link:hover {
-        color: #c0392b;
-    }
-    .navbar {
-        height: 70px;
-    }
-    .navbar-nav .nav-link {
-        transition: box-shadow 0.3s ease-in-out;
-    }
+/* Cancel Link */
+.cancel-link {
+    text-align: center;
+    display: block;
+    color: #e74c3c;
+    text-decoration: none;
+    font-weight: 400;
     
-    .navbar-nav .nav-link:hover {
-        box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3); /* Soft red shadow */
-        color: #c0392b; /* Darker red color on hover */
-    }
-    .welcome-message {
-        padding-left: 10px;
-        border-left: 2px solid #e74c3c;
-        margin-left: 5px;
-    }
+}
 
-    /* Remove body and html margin and padding */
-    body, html {
-        margin: 0;
-        padding: 0;
-    }
+.cancel-link:hover {
+    color: #c0392b;
+}
+.navbar {
+    height: 70px;
+}
+.navbar-nav .nav-link {
+    transition: box-shadow 0.3s ease-in-out;
+}
 
-    /* Remove any margin from the container */
-    .container {
-        margin-top: 0 !important; /* Remove margin-top */
-        padding-top: 0; /* Remove padding if any */
-    }
+.navbar-nav .nav-link:hover {
+    box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3); /* Soft red shadow */
+    color: #c0392b; /* Darker red color on hover */
+}
+.welcome-message {
+    padding-left: 10px;
+    border-left: 2px solid #e74c3c;
+    margin-left: 5px;
+}
 
-   
+/* Remove body and html margin and padding */
+body, html {
+    margin: 0;
+    padding: 0;
+}
+
+/* Remove any margin from the container */
+.container {
+    margin-top: 0 !important; /* Remove margin-top */
+    padding-top: 0; /* Remove padding if any */
+}
+
+
+
 
 </style>
 
 <body>
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-        <div class="container-fluid d-flex justify-content-between align-items-center">
-            <!-- Left: Brand -->
-            <a class="navbar-brand"
-                href="{% if is_librarian %}{% url 'librarian_dashboard' %}
-                    {% elif is_student %}{% url 'book_list_student' %}
-                    {% else %}{% url 'book_list_student' %}{% endif %}">
-                <img src="{% static 'images/logo.png' %}" alt="Site Logo" width="30" height="30" class="d-inline-block align-top">
-                <strong>Q U I L L Q U E S T</strong>
-            </a>
-    
-            <!-- Center: Welcome Message -->
-            {% if is_librarian %}
-                <span class="navbar-text text-center flex-grow-2 border-left welcome-message">
-                    Welcome <strong>{{ user.first_name }}</strong>
-                </span>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+        <!-- Left: Brand -->
+        <a class="navbar-brand"
+            href="{% if is_librarian %}{% url 'librarian_dashboard' %}
+                {% elif is_student %}{% url 'book_list_student' %}
+                {% else %}{% url 'book_list_student' %}{% endif %}">
+            <img src="{% static 'images/logo.png' %}" alt="Site Logo" width="30" height="30" class="d-inline-block align-top">
+            <strong>Q U I L L Q U E S T</strong>
+        </a>
 
-            {% elif is_student %}
+        <!-- Center: Welcome Message -->
+        {% if is_librarian %}
             <span class="navbar-text text-center flex-grow-2 border-left welcome-message">
                 Welcome <strong>{{ user.first_name }}</strong>
             </span>
-            {% endif %}
-    
-            <!-- Right: Links -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    {% if user.is_authenticated %}
-                        {% if is_librarian %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'librarian_dashboard' %}">Home</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#">Change Password</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                            </li>
-                        {% else %}
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'book_list_student' %}">Home</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'view_membership_plans' %}">Membership</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'student_profile' %}">Profile</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                            </li>
-                        {% endif %}
+
+        {% elif is_student %}
+        <span class="navbar-text text-center flex-grow-2 border-left welcome-message">
+            Welcome <strong>{{ user.first_name }}</strong>
+        </span>
+        {% endif %}
+
+        <!-- Right: Links -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                {% if user.is_authenticated %}
+                    {% if is_librarian %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'librarian_dashboard' %}">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Change Password</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                        </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                            <a class="nav-link" href="{% url 'book_list_student' %}">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'signup' %}">Signup</a>
+                            <a class="nav-link" href="{% url 'browse_books' %}">Browse</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'view_membership_plans' %}">Membership</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'student_profile' %}">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                         </li>
                     {% endif %}
-                </ul>
-            </div>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'signup' %}">Signup</a>
+                    </li>
+                {% endif %}
+            </ul>
         </div>
-    </nav>
-
-    <!-- Main Content -->
-    <div class="container mt-4">
-    {% comment %} <div class="mt-4"> {% endcomment %}
-        {% block body %}
-        <!-- Page-specific content goes here -->
-        {% endblock %}
     </div>
+</nav>
 
-    <!-- Footer -->
-    <footer class="bg-light text-center text-lg-start mt-auto">
-        <div class="text-center p-3">
-            © 2024 MySite | <a class="text-dark" href="#">Privacy Policy</a>
-        </div>
-    </footer>
+<!-- Main Content -->
 
-    <!-- BOOTSTRAP JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-H1bIQuVGF/45y2hvG3s9mGjUuI1kEkZyXzq3E0wgMa5dDCLv3C1XZXBMCY+gJvLA" crossorigin="anonymous"></script>
-    {% block script %}{% endblock %}
+{% comment %} <div class="mt-4"> {% endcomment %}
+    {% block body %}
+    <div class=" mt-4">
+    <!-- Page-specific content goes here -->
+    </div>
+    {% endblock %}
+
+
+<!-- Footer -->
+<footer class="bg-light text-center text-lg-start mt-auto">
+    <div class="text-center p-3">
+        © All Rights Reserved <a class="text-dark" href="#">Privacy Policy</a>
+    </div>
+</footer>
+
+<!-- BOOTSTRAP JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block script %}{% endblock %}
 </body>
 </html>

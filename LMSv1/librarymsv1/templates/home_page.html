@@ -2,247 +2,266 @@
 
 {% block title %}QuillQuest - Home{% endblock %}
 {% load static %}
+
 {% block extra_css %}
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        body, h1, h3, p {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-        }
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+    /* General Typography */
+    body, h1, h3, p {
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding: 0;
+    }
 
-        .btn-custom {
-            background-color: transparent;
-            color: #d9534f;
-            border: 2px solid #d9534f;
-            border-radius: 8px;
-            padding: 8px 16px;
-            font-size: 16px;
-            text-decoration: none;
-            display: inline-block;
-            margin: 10px;
-            transition: all 0.3s ease;
-        }
+    /* Buttons */
+    .btn-custom {
+        background-color: transparent;
+        color: #d9534f;
+        border: 2px solid #d9534f;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-size: 16px;
+        text-decoration: none;
+        display: inline-block;
+        margin: 10px;
+        transition: all 0.3s ease;
+    }
 
-        .btn-custom:hover {
-            background-color: #d9534f;
-            color: white;
-        }
+    .btn-custom:hover {
+        background-color: #d9534f;
+        color: white;
+    }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            text-align: center;
-        }
+    /* Container */
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        text-align: center;
+    }
 
-        .book-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 30px;
-            justify-items: center;
-            padding: 20px;
-        }
+    /* Book List */
+    .book-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 30px;
+        justify-items: center;
+        padding: 20px;
+    }
 
-        .book-card {
-            border: none;
-            border-radius: 10px;
-            text-align: center;
-            background-color: #fff;
-            box-shadow: none;
-            transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
-            width: 250px;
-            overflow: hidden;
-            height: 500px;
-            margin-bottom: 0;
-        }
+    .book-card {
+        border: none;
+        border-radius: 10px;
+        text-align: center;
+        background-color: #fff;
+        box-shadow: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease;
+        width: 250px;
+        overflow: hidden;
+        height: 550px;
+        margin-bottom: 0;
+    }
 
-        .book-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-            border: 2px solid #ddd;
-            margin-bottom: 30px;
-        }
+    .book-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        border: 2px solid #ddd;
+        margin-bottom: 30px;
+    }
 
-        .book-card img {
-            width: 100%;
-            height: 300px;
-            object-fit: cover;
-            border-radius: 8px;
-            display: block;
-        }
+    .book-card img {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+        border-radius: 8px;
+        display: block;
+    }
 
-        .book-card h3 {
-            margin: 15px 0 5px;
-            font-size: 1.2em;
-        }
+    .book-card h3 {
+        margin: 15px 0 5px;
+        font-size: 1.2em;
+    }
 
-        .book-card p {
-            margin: 5px 0;
-            font-size: 14px;
-            color: #666;
-        }
+    .book-card p {
+        margin: 5px 0;
+        font-size: 14px;
+        color: #666;
+    }
 
-        .price {
-            font-weight: bold;
-            font-size: 16px;
-            color: #d9534f;
-        }
+    .price {
+        font-weight: bold;
+        font-size: 16px;
+        color: #d9534f;
+    }
 
-        .book-card .btn-rentandbuy {
-            background-color: #d9534f;
-            color: white;
-            border: 2px solid #d9534f;
-            padding: 8px 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 10px;
-        }
+    .book-card .btn-rentandbuy {
+        background-color: #d9534f;
+        color: white;
+        border: 2px solid #d9534f;
+        padding: 8px 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 10px;
+    }
 
-        .book-card .btn-rentandbuy:hover {
-            background-color: white;
-            color: #d9534f;
-        }
+    .book-card .btn-rentandbuy:hover {
+        background-color: white;
+        color: #d9534f;
+    }
 
-        .wishlist-btn {
-            font-size: 20px;
-            color: #d9534f;
-            cursor: pointer;
-            transition: color 0.3s ease;
-        }
+    /* Search Section */
+    .hero-section {
+        position: relative;
+        background-image: url("{% static 'images/homepage.jpg' %}");
+        background-size: cover;
+        background-position: center center;
+        height: 70vh;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
 
-        .wishlist-btn:hover {
-            color: #c9302c;
-        }
+    .hero-section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.2);
+        z-index: 1;
+    }
 
-        .auth-buttons a {
-            display: inline-block;
-            margin-top: 20px;
-            margin-right: 15px;
-        }
+    .search-bar {
+        position: relative;
+        z-index: 2;
+        padding: 20px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
 
-        /* Image and Search Bar Section */
-        .hero-section {
-            position: relative;
-            #background-image: url("{% static 'images/homepage.jpg' %}");
-            background-size: cover;
-            background-position: center center;
-            height: 70vh;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            overflow: hidden;
-            margin: 0; /* Remove any margin */
-            padding: 0; /* Remove any padding */
-            background-image: url("{% static 'images/homepage.jpg' %}");
-            background-size: cover;
-            background-position: center;
-        }
-        
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%; /* Ensure full height for the page */
-        }
+    .search-bar input {
+        padding: 10px;
+        width: 50%;
+        border-radius: 5px;
+        border: none;
+        font-size: 16px;
+        width: 300px;
+    }
 
-        /* Optional: Overlay for better text visibility */
-        .hero-section::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.2); /* semi-transparent black */
-            z-index: 1;
-        }
+    .search-bar button {
+        padding: 10px 20px;
+        border-radius: 5px;
+        border: none;
+        background-color: #d9534f;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        margin-left: 0px;
+    }
+
+    .search-bar button:hover {
+        background-color: #c9302c;
+    }
+
+    /* Search Message */
+    .search-message {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #333;
+        background-color: #f8f9fa;
+        padding: 10px 15px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        text-align: center;
+        margin: 15px 0;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Headings for Categories */
+    h2 {
+        margin: 30px 0 10px;
+        font-size: 1.8em;
+        color: #d9534f;
+        text-align: left;
+    }
+    .category-divider {
+        margin: 30px 0;
+        border: 0;
+        height: 3px;
+        background: #ddd; /* Light gray for subtle separation */
+    }
     
-        .search-bar {
-            position: relative;
-            z-index: 2;
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 20px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 60%;
-        }
-    
-        .search-bar input {
-            padding: 10px;
-            width: 80%;
-            border-radius: 5px;
-            border: none;
-            font-size: 16px;
-        }
-    
-        .search-bar button {
-            padding: 10px 20px;
-            border-radius: 5px;
-            border: none;
-            background-color: #d9534f;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            margin-left: 10px;
-        }
-    
-        .search-bar button:hover {
-            background-color: #c9302c;
-        }
-    </style>
+</style>
 {% endblock %}
 
 {% block body %}
-    <!-- Hero Section with Image and Search Bar -->
+    <!-- Hero Section with Search Bar -->
     <div class="hero-section">
         <div class="search-bar">
-            <input type="text" placeholder="Search books...">
-            <button type="submit">Search</button>
+            <form method="get">
+                <input type="text" name="searchbook" placeholder="Search for Books, Authors, Genres" value="{{ search_query }}">
+                <button type="submit">Search</button>
+            </form>
         </div>
     </div>
+    <br>
 
     <div class="container">
-        <div class="book-list">
-            {% for book in books %}
-                <div class="book-card">
-                    <img src="{{ book.ISBN.book_cover.url }}" alt="Book Cover">
-                    <h3>{{ book.book_name }}</h3>
-                    <p>{{ book.author.author_name }}</p>
-                    <p class="price"><strong>Price:</strong>₹ {{ book.price }}</p>
-                    <p class="price"><strong>Rent: </strong>₹ {{ book.rent }}</p>
-                    <a href="{% url 'rent_details' book.id %}" class="btn-rentandbuy">Rent</a>
-                    <a href="{% url 'purchase_details' book.id %}" class="btn-rentandbuy">Buy</a>
-                </div>
-            {% endfor %}
-        </div>
-
-        {% comment %} {% if user.is_authenticated %}
-            <p>You are logged in!</p>
-            <div class="auth-buttons">
-                <a href="{% url 'student_profile' %}" class="btn-custom">Profile</a>
-                <a href="{% url 'logout' %}" class="btn-custom">Logout</a>
+        {% if search_query %}
+            <p class="search-message">{{ message }}</p>
+            <div class="book-list">
+                {% for book in books %}
+                    <div class="book-card">
+                        <img src="{{ book.ISBN.book_cover.url }}" alt="Book Cover">
+                        <h3>{{ book.book_name }}</h3>
+                        <p>Author: {{ book.author.author_name }}</p>
+                        <p>Genre: {{ book.genre.genre_name }}</p>
+                        <p class="price"><strong>Price:</strong> ₹{{ book.price }}</p>
+                        <a href="{% url 'rent_details' book.id %}" class="btn-rentandbuy">Rent</a>
+                        <a href="{% url 'purchase_details' book.id %}" class="btn-rentandbuy">Buy</a>
+                        <a href="{% url 'book_detail' book.id %}" class="btn-rentandbuy">View Details</a>
+                    </div>
+                {% endfor %}
             </div>
         {% else %}
-            <p>Please choose an action below:</p>
-            <div class="auth-buttons">
-                <a href="{% url 'login' %}" class="btn-custom">Login</a>
-                <a href="{% url 'signup' %}" class="btn-custom">Signup</a>
-            </div>
-        {% endif %} {% endcomment %}
+            {% for category, books in categories.items %}
+                {% if books.exists %}
+                    <h2>{{ category }}</h2>
+                    <div class="book-list">
+                        {% for book in books %}
+                            <div class="book-card">
+                                <img src="{{ book.ISBN.book_cover.url }}" alt="Book Cover">
+                                <h3>{{ book.book_name }}</h3>
+                                <p>Author: {{ book.author.author_name }}</p>
+                                <p>Genre: {{ book.genre.genre_name }}</p>
+                                <p class="price"><strong>Price:</strong> ₹{{ book.price }}</p>
+                                <a href="{% url 'rent_details' book.id %}" class="btn-rentandbuy">Rent</a>
+                                <a href="{% url 'purchase_details' book.id %}" class="btn-rentandbuy">Buy</a>
+                                <a href="{% url 'book_detail' book.id %}" class="btn-rentandbuy">View Details</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <hr class="category-divider">
+                {% endif %}
+            {% endfor %}
+        {% endif %}
     </div>
+    
 {% endblock %}
 
 {% block extra_js %}
-    <script>
-        {% if alert_message %}
-        alert("{{ alert_message }}");
-        {% endif %}
-    </script>
+<script>
+    {% if alert_message %}
+    alert("{{ alert_message }}");
+    {% endif %}
+</script>
 {% endblock %}
