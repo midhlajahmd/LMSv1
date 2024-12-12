@@ -19,6 +19,8 @@
         text-align: center;
         max-width: 500px;
         width: 100%;
+        margin-top:20px;
+        margin-botton:50px;
     }
 
     .rent-details h2 {
@@ -59,13 +61,13 @@
     }
 
     .btn-secondary {
-        background-color: #f7f7f7;
+        background-color:rgb(205, 48, 48);
         color: #333;
         border: 1px solid #ddd;
     }
 
     .btn-secondary:hover {
-        background-color: #e6e6e6;
+        background-color:rgb(207, 55, 55);
     }
 </style>
 
@@ -84,12 +86,29 @@
         <p><strong>Rent:</strong> ₹ {{ book.rent }}</p>
         
         {% if can_rent %}
-            <a href="{% url 'rent_book' book.id %}" class="btn btn-primary">Rent</a>
+        <a href="{% url 'rent_book' book.id %}" class="btn btn-primary" onclick="showRentAlert(event, '{{ book.book_name }}', '{{ book.rent }}')">Rent</a>
         {% else %}
             <p style="color: red;">You have already rented this book.</p>
+            <a href="{% url 'read_book_interface' rental.book.id %}" class="btn btn-primary">Read</a>
         {% endif %}
         
         <a href="{% url 'book_list_student' %}" class="btn btn-secondary">Cancel</a>
     </div>
 </div>
+
+<script>
+    function showRentAlert(event, bookName, rent) {
+        // Prevent the default link behavior
+        event.preventDefault();
+
+        // Show the alert with the book name and rent
+        const isConfirmed = confirm(`Do you want to rent ${bookName} for ${rent}`);
+
+        // If confirmed, proceed with the rent action
+        if (isConfirmed) {
+            // Redirect to the rent book page
+            window.location.href = event.target.href;
+        }
+    }
+</script>
 {% endblock %}

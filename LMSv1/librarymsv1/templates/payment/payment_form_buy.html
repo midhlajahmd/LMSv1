@@ -110,7 +110,7 @@
   </div>
 
   <!-- Payment Form -->
-  <form method="post" action="{% url 'process_payment_buy' order_type_name related_id %}">
+  <form id="payment-form" method="post" action="{% url 'process_payment_buy' order_type_name related_id %}">
     {% csrf_token %}
 
     <!-- Address Fields -->
@@ -119,10 +119,10 @@
     <textarea name="address" id="address" rows="3" required placeholder="Enter your delivery address"></textarea>
 
     <label for="pincode">Pincode:</label>
-    <input type="text" name="pincode" id="pincode" required placeholder="Enter your pincode">
+    <input type="text" name="pincode" id="pincode" required placeholder="Enter your pincode" pattern="\d{6}" title="Pincode should be 6 digits">
 
     <label for="phone">Mobile Number:</label>
-    <input type="text" name="phone" id="phone" required placeholder="Enter your mobile number">
+    <input type="text" name="phone" id="phone" required placeholder="Enter your mobile number" pattern="\d{10}" title="Mobile number should be 10 digits">
 
     <label for="quantity">Quantity:</label>
     <input type="number" name="quantity" id="quantity" min="1" required placeholder="Enter quantity">
@@ -130,7 +130,8 @@
     <!-- Payment Method Fields -->
     <h3>Payment Method</h3>
     <label for="payment_type">Payment Type:</label>
-    <select name="payment_type" id="payment_type">
+    <select name="payment_type" id="payment_type" required>
+        <option value="" disabled selected>Select Payment Type</option>
         <option value="upi">UPI</option>
         <option value="cc">Credit Card</option>
         <option value="net_banking">Net Banking</option>
@@ -138,24 +139,27 @@
 
     <div id="upi_fields" class="payment-fields">
         <label for="upi_id">UPI ID:</label>
-        <input type="text" name="upi_id" id="upi_id" placeholder="Enter UPI ID">
+        <input type="text" name="upi_id" id="upi_id" placeholder="Enter UPI ID" pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+$" title="UPI ID should follow the format: user@bankname">
     </div>
 
     <div id="cc_input" class="payment-fields">
         <label for="cc_number">Card Number:</label>
-        <input type="text" name="cc_number" id="cc_number" placeholder="Enter Card Number">
+        <input type="text" name="cc_number" id="cc_number" placeholder="Enter 16-digit Card Number" pattern="\d{16}" title="Card number must be exactly 16 digits">
         <label for="cc_expiry">Expiry (MM/YY):</label>
-        <input type="text" name="cc_expiry" id="cc_expiry" placeholder="MM/YY">
+        <input type="text" name="cc_expiry" id="cc_expiry" placeholder="MM/YY" pattern="^(0[1-9]|1[0-2])\/\d{2}$" title="Expiry date must be in MM/YY format">
         <label for="cc_cvv">CVV:</label>
-        <input type="text" name="cc_cvv" id="cc_cvv" placeholder="Enter CVV">
+        <input type="text" name="cc_cvv" id="cc_cvv" placeholder="Enter 3-digit CVV" pattern="\d{3}" title="CVV must be exactly 3 digits">
     </div>
 
     <div id="bank_fields" class="payment-fields">
         <label for="bank_details">Router Number:</label>
-        <input type="text" name="bank_details" id="bank_details" placeholder="Enter Router Number">
+        <input type="text" name="bank_details" id="bank_details" placeholder="Enter Router Number" pattern="\d{12}" title="Router number must be exactly 12 digits">
     </div>
 
-    <button type="submit" class="pay-button">Pay Now</button>
+    <div class="d-flex flex-column align-items-center mt-3">
+        <button type="submit" class="pay-button btn btn-primary">Pay Now</button>
+        <a href="{% url 'book_list_student' %}" class="cancel-link mt-2" onclick="return confirmCancel()">Cancel Payment</a>
+    </div>
   </form>
 </div>
 
@@ -184,5 +188,51 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+document.getElementById('payment-form').addEventListener('submit', function (e) {
+    const paymentType = document.getElementById('payment_type').value;
+
+    if (paymentType === 'upi') {
+        const upiId = document.getElementById('upi_id').value.trim();
+        const upiPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+$/;
+        if (!upiPattern.test(upiId)) {
+            alert('Please enter a valid UPI ID (eg: user@upi).');
+            e.preventDefault();
+        }
+    }
+
+    if (paymentType === 'cc') {
+        const ccNumber = document.getElementById('cc_number').value.trim();
+        const ccExpiry = document.getElementById('cc_expiry').value.trim();
+        const ccCvv = document.getElementById('cc_cvv').value.trim();
+        const ccExpiryPattern = /^(0[1-9]|1[0-2])\/\d{2}$/;
+
+        if (!/^\d{16}$/.test(ccNumber)) {
+            alert('Card number must be exactly 16 digits.');
+            e.preventDefault();
+        }
+        if (!ccExpiryPattern.test(ccExpiry)) {
+            alert('Expiry date must be in MM/YY format.');
+            e.preventDefault();
+        }
+        if (!/^\d{3}$/.test(ccCvv)) {
+            alert('CVV must be exactly 3 digits.');
+            e.preventDefault();
+        }
+    }
+
+    if (paymentType === 'net_banking') {
+        const bankDetails = document.getElementById('bank_details').value.trim();
+        if (!/^\d{12}$/.test(bankDetails)) {
+            alert('Router number must be exactly 12 digits.');
+            e.preventDefault();
+        }
+    }
+});
+
+function confirmCancel() {
+    return confirm("Are you sure you want to cancel the payment");
+}
 </script>
+
 {% endblock %}

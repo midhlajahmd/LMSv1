@@ -5,11 +5,7 @@
 <form method="post" class="book-form" id="book-form">
     {% csrf_token %}
 
-    <!-- Book Name Field -->
-    <div class="form-field">
-        <label for="id_book_name">Book Name:</label>
-        {{ form.book_name }}
-    </div>
+    
 
     <!-- Author Dropdown with Inline Form -->
     <div class="form-field" style="display: flex; flex-direction: column;">
@@ -39,6 +35,11 @@
         </div>
     </div>
 
+    <!-- Book Name Field -->
+    <div class="form-field">
+        <label for="id_book_name">Book Name:</label>
+        {{ form.book_name }}
+    </div>
     <!-- Other Fields (ISBN, Price, Rent Percentage, etc.) -->
     <div class="form-field">
         <label for="id_ISBN">ISBN:</label>
@@ -64,33 +65,36 @@
         <label for="id_added_date">Added Date:</label>
         {{ form.added_date }}
     </div>
-    <div class="form-field">
-        <label for="id_hidden">Hidden:</label>
-        {{ form.hidden }}
-    </div>
-    <div class="form-field">
-        <label for="id_featured">Featured:</label>
-        {{ form.featured }}
-    </div>
-    <div class="form-field">
-        <label for="id_bestseller">BestSeller:</label>
-        {{ form.bestseller }}
-    </div>
-    <div class="form-field">
-        <label for="id_noteworthy">Noteworthy:</label>
-        {{ form.noteworthy }}
-    </div>
-    <div class="form-field">
-        <label for="id_writeplace">Writeplace:</label>
-        {{ form.writeplace }}
-    </div>
-    <div class="form-field">
-        <label for="id_top20">Top 20:</label>
-        {{ form.top20 }}
-    </div>
-    <div class="form-field">
-        <label for="id_recommend">Recommends:</label>
-        {{ form.recommend }}
+    <br>
+    <div class="form-field-container">
+        <div class="form-field-sel">
+            <label for="id_hidden">Hidden:</label>
+            {{ form.hidden }}
+        </div>
+        <div class="form-field-sel">
+            <label for="id_featured">Featured:</label>
+            {{ form.featured }}
+        </div>
+        <div class="form-field-sel">
+            <label for="id_bestseller">BestSeller:</label>
+            {{ form.bestseller }}
+        </div>
+        <div class="form-field-sel">
+            <label for="id_noteworthy">Noteworthy:</label>
+            {{ form.noteworthy }}
+        </div>
+        <div class="form-field-sel">
+            <label for="id_writeplace">Writeplace:</label>
+            {{ form.writeplace }}
+        </div>
+        <div class="form-field-sel">
+            <label for="id_top20">Top 20:</label>
+            {{ form.top20 }}
+        </div>
+        <div class="form-field-sel">
+            <label for="id_recommend">Recommends:</label>
+            {{ form.recommend }}
+        </div>
     </div>
 
 
@@ -267,15 +271,29 @@
     .cancel-btn:hover {
         text-decoration: underline;
     }
-    /* Form Field Styling */
-    .form-field {
+    .form-field-container {
+        display: flex;
+        flex-wrap: wrap; /* Allows the fields to wrap to the next line if space is tight */
+        gap: 20px; /* Adds space between the fields */
+        margin-bottom: 20px; /* Adds space below the container */
+    }
+    
+    .form-field-sel {
+        display: flex;
+        align-items: center;
         margin-bottom: 10px;
+        flex: 1; /* Makes each item take equal space */
+        min-width: 150px; /* Minimum width for each checkbox area */
     }
-
-    .form-field label {
-        font-weight: bold;
-        margin-bottom: 8px;
-        display: block;
+    
+    .form-field-sel label {
+        margin-right: 10px;
+        white-space: nowrap; /* Prevents labels from breaking into multiple lines */
     }
+    
+    .form-field-sel input[type="checkbox"] {
+        margin-right: 10px; /* Adds space between checkboxes */
+    }
+    
 </style>
 {% endblock %}

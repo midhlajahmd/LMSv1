@@ -64,8 +64,20 @@ class Books(models.Model):
 
     def save(self, *args, **kwargs):
         # Automatically calculate the rent as given by user
-        self.rent = self.price * (self.rent_percentage / 100)
+            # self.rent = self.price * (self.rent_percentage / 100)
+            # super().save(*args, **kwargs)
+        is_new = self.pk is None  # Check if this is a new book being added
+        self.rent = self.price * (self.rent_percentage / 100)  # Calculate rent
         super().save(*args, **kwargs)
+        
+        # Send notifications if this is a new book
+        if is_new:
+            self.send_new_book_notifications()
+    def send_new_book_notifications(self):
+        message = f"New book '{self.book_name}' is available!"
+        users = User.objects.all()  # Notify all users
+        for user in users:
+            Notification.objects.create(user=user, message=message)
 
     def __str__(self):
         return self.book_name
@@ -133,3 +145,13 @@ class BookPurchase(models.Model):
     address = models.TextField()
     pincode = models.CharField(max_length=10)
     phone = models.CharField(max_length=15)
+
+#NOTIFICATIONS
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.message

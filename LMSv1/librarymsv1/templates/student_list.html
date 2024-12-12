@@ -137,7 +137,13 @@
                     No Membership Plan
                 {% endif %}
             </td>
-            <td>{{ student.expiry_date }}</td>
+            <td>
+                {% if student.membership_plan %}
+                    {{ student.expiry_date }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
             <td>{{ student.is_active|yesno:"Yes,No" }}</td>
         </tr>
         {% empty %}

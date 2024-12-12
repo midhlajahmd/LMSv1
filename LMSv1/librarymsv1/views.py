@@ -1,11 +1,11 @@
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required,user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import LoginForm,UserRegistrationForm,BookForm,AuthorForm,GenreForm,MembershipPlanForm
 from django.contrib import messages
 from django.http import HttpResponse
 from django.contrib.auth.models import User,Group
-from .models import Books,Authors,Genres,MembershipPlan,StudentProfile,Rental,BookContent,Payment,BookPurchase
+from .models import Books,Authors,Genres,MembershipPlan,StudentProfile,Rental,BookContent,Payment,BookPurchase,Notification
 from datetime import date, timedelta
 from django.utils import timezone
 from django.http import JsonResponse
@@ -16,6 +16,8 @@ from django.http import Http404
 
 
 # Create your views here.
+def is_librarian(user):
+    return user.groups.filter(name='Librarian').exists()
 
 def user_login(request):
     if request.method == 'POST':
@@ -69,6 +71,7 @@ def custom_logout(request):
     return HttpResponse(response)
 
 @login_required
+@user_passes_test(is_librarian, login_url='book_list_student')
 def librarian_dashboard(request):
     return render(request, 'librarian_dashboard.html')
 
@@ -91,17 +94,28 @@ def register(request):
             group = Group.objects.get(name='student')
             new_user.groups.add(group)
 
+            login(request, new_user)
+            
+            redirect_url = reverse('book_list_student')
             #messages.success(request, 'Your account has been created successfully. Please log in.')
-            return render(request, 'register_done.html', {'user_req_form': user_req_form})
+           # return redirect('book_list_student')
+            return HttpResponse(f"""
+                <script>
+                    alert('Your account has been created successfully. You are now logged in.');
+                    window.location.href = '{redirect_url}';
+                </script>
+            """)
         else:
             # If form is invalid, display error messages
-            messages.error(request, 'There was an error with your signup. Please check the details and try again.')
+            messages.error(request, '.')
     else:
         # Display an empty form if the request is not POST
         user_req_form = UserRegistrationForm()
     return render(request, 'register.html', {'user_req_form': user_req_form})
 
 #BOOKLIST Admin
+@login_required
+@user_passes_test(is_librarian, login_url='book_list_student')
 def book_list(request):
     # Fetch the search term and filter status from the request
     search_term = request.GET.get('searchbook', '')
@@ -137,6 +151,8 @@ def book_list(request):
     return render(request, 'books/book_list.html', {'books': books})
 
 #ADD NEW BOOK
+@login_required
+@user_passes_test(is_librarian, login_url='book_list_student')
 def book_add(request):
     if request.method == 'POST':
         form = BookForm(request.POST)
@@ -157,38 +173,72 @@ def book_add(request):
     return render(request, 'books/book_form.html', {'form': form, 'title': 'Add a New Book'})
 
 #UPDATE EXISTING BOOK
+@login_required
+@user_passes_test(is_librarian, login_url='book_list_student')
 def book_edit(request, pk):
-    book = get_object_or_404(Books, pk=pk)
+#     book = get_object_or_404(Books, pk=pk)
 
-    # Editable fields
-    editable_fields = ['price', 'rent_percentage', 'quantity', 'status','hidden','featured','bestseller','noteworthy','writeplace','top20','recommend',]
+#     # Editable fields
+#     editable_fields = ['price', 'rent_percentage', 'quantity', 'status','hidden','featured','bestseller','noteworthy','writeplace','top20','recommend',]
 
-    # Initialize the form with POST data or existing instance
-    form = BookForm(
-        request.POST or None, 
-        instance=book
-    )
+#     # Initialize the form with POST data or existing instance
+#     form = BookForm(
+#         request.POST or None, 
+#         instance=book
+#     )
 
-    # Remove non-editable fields dynamically
-    for field in list(form.fields):
-        if field not in editable_fields:
-            del form.fields[field]
+#     # Remove non-editable fields dynamically
+#     for field in list(form.fields):
+#         if field not in editable_fields:
+#             del form.fields[field]
 
-    if form.is_valid():
-        form.save()
-        # Display alert and redirect
-        response = """
-            <script>
-                alert('Book Edited successfully!');
-                window.location.href = '{}';
-            </script>
-        """.format(reverse('book_list'))
-        return HttpResponse(response)
+#     if form.is_valid():
+#         form.save()
+#         # Display alert and redirect
+#         response = """
+#             <script>
+#                 alert('Book Edited successfully!');
+#                 window.location.href = '{}';
+#             </script>
+#         """.format(reverse('book_list'))
+#         return HttpResponse(response)
 
-    return render(request, 'books/book_form.html', {'form': form, 'title': 'Edit Book'})
+#     return render(request, 'books/book_form.html', {'form': form, 'title': 'Edit Book'})
+        book = get_object_or_404(Books, pk=pk)
 
+        # Editable fields
+        editable_fields = ['price', 'rent_percentage', 'quantity', 'status', 'hidden', 'featured', 'bestseller', 'noteworthy', 'writeplace', 'top20', 'recommend']
+
+        # Initialize the form with POST data or existing instance
+        form = BookForm(
+            request.POST or None, 
+            instance=book
+        )
+
+        # Show both editable and uneditable fields
+        for field in form.fields:
+            if field not in editable_fields:
+                # Make uneditable fields read-only or disabled in the form
+                form.fields[field].widget.attrs['readonly'] = 'readonly'
+                # Or you can use 'disabled' to prevent interaction (form submission will exclude these values)
+                # form.fields[field].widget.attrs['disabled'] = 'disabled'
+
+        if form.is_valid():
+            form.save()
+            # Display alert and redirect
+            response = """
+                <script>
+                    alert('Book Edited successfully!');
+                    window.location.href = '{}';
+                </script>
+            """.format(reverse('book_list'))
+            return HttpResponse(response)
+
+        return render(request, 'books/book_form.html', {'form': form, 'title': 'Edit Book'})
 
 #DELETE BOOK
+@login_required
+@user_passes_test(is_librarian, login_url='book_list_student')
 def book_delete(request, pk):
     book = get_object_or_404(Books, pk=pk)
     if request.method == 'POST':
@@ -205,6 +255,8 @@ def book_delete(request, pk):
     return render(request, 'books/book_confirm_delete.html', {'book': book})
 
 # View to display list of authors
+@login_required
+@user_passes_test(is_librarian, login_url='book_list_student')
 def author_list(request):
     # Get the search query from the GET request
     search_query = request.GET.get('searchauthor', '')
@@ -220,6 +272,8 @@ def author_list(request):
     return render(request, 'authors/author_list.html', {'authors': authors})
 
 # View to add a new author
+@login_required
+@user_passes_test(is_librarian, login_url='book_list_student')
 def add_author(request):
     if request.method == 'POST':
         form = AuthorForm(request.POST)
@@ -231,6 +285,8 @@ def add_author(request):
     return render(request, 'authors/author_form.html', {'form': form})
 
 # View to edit an existing author
+@login_required
+@user_passes_test(is_librarian, login_url='book_list_student')
 def edit_author(request, pk):
     author = get_object_or_404(Authors, pk=pk)
     if request.method == 'POST':
@@ -243,12 +299,16 @@ def edit_author(request, pk):
     return render(request, 'authors/author_form.html', {'form': form})
 
 # View to delete an author
+@login_required
+@user_passes_test(is_librarian, login_url='book_list_student')
 def delete_author(request, pk):
     author = get_object_or_404(Authors, pk=pk)
     author.delete()
     return redirect('author_list')
 
 # View to display the list of genres
+@login_required
+@user_passes_test(is_librarian, login_url='book_list_student')
 def genre_list(request):
     # Get the search query from the GET request
     search_query = request.GET.get('searchgenre', '')
@@ -262,6 +322,8 @@ def genre_list(request):
     return render(request, 'genres/genre_list.html', {'genres': genres})
 
 # View to add a new genre
+@login_required
+@user_passes_test(is_librarian, login_url='book_list_student')
 def add_genre(request):
     if request.method == 'POST':
         form = GenreForm(request.POST)
@@ -273,6 +335,8 @@ def add_genre(request):
     return render(request, 'genres/genre_form.html', {'form': form})
 
 # View to edit an existing genre
+@login_required
+@user_passes_test(is_librarian, login_url='book_list_student')
 def edit_genre(request, pk):
     genre = get_object_or_404(Genres, pk=pk)
     if request.method == 'POST':
@@ -285,17 +349,22 @@ def edit_genre(request, pk):
     return render(request, 'genres/genre_form.html', {'form': form})
 
 # View to delete a genre
+@login_required
+@user_passes_test(is_librarian, login_url='book_list_student')
 def delete_genre(request, pk):
     genre = get_object_or_404(Genres, pk=pk)
     genre.delete()
     return redirect('genre_list')
 
 #ADMIN SIDE plans
+@login_required
+@user_passes_test(is_librarian, login_url='book_list_student')
 def manage_membership_plans(request):
     plans = MembershipPlan.objects.all()
     return render(request, 'membership-plans/membership_plans.html', {'plans': plans})
 
-
+@login_required
+@user_passes_test(is_librarian, login_url='book_list_student')
 def add_or_edit_plan(request, pk=None):
     if pk:
         plan = get_object_or_404(MembershipPlan, pk=pk)
@@ -312,6 +381,7 @@ def add_or_edit_plan(request, pk=None):
     return render(request, 'membership-plans/add_or_edit_plan.html', {'form': form})
 
 #USER SIDE plans
+@login_required
 def plan_details(request, plan_id):
     plan = get_object_or_404(MembershipPlan, pk=plan_id)
     return render(request, 'membership-plans/plan_details.html', {'plan': plan})
@@ -349,12 +419,18 @@ def upgrade_plan(request, plan_id):
     student_profile, created = StudentProfile.objects.get_or_create(user=request.user)
 
     if student_profile.membership_plan and student_profile.membership_plan.fee >= plan.fee:
-        messages.error(request, 'You can only upgrade to a higher plan.')
-        return redirect('view_membership_plans')
+        redirect_url = reverse('view_membership_plans')
+        return HttpResponse(f"""
+            <script>
+                alert('You can only upgrade to a higher plan!!!');
+                window.location.href = '{redirect_url}';
+            </script>
+        """)
 
     # Redirect to the payment processing view to handle payment before finalizing the upgrade
     return redirect('process_payment', order_type_name="membership", related_id=plan.id)
 
+@login_required
 def student_profile(request):
     return render(request, 'student_profile.html')
 
@@ -447,8 +523,13 @@ def rent_book(request, book_id):
 
         # Check if the book is already rented by the student
         if Rental.objects.filter(student_profile=student_profile, book=book, is_rented=True).exists():
-            messages.info(request, "You have already rented this book.")
-            return redirect('rented_books')  # Redirect to the rented books page
+            response = """
+                    <script>
+                        alert('You have already rented this book.');
+                        window.location.href = '{}';
+                    </script>
+                """.format(reverse('rented_books'))
+            return HttpResponse(response)
 
         rental_limit = student_profile.membership_plan.rent_limit  # Assuming 'rental_limit' is a field in membership_plan
         if active_rentals_count >= rental_limit:
@@ -472,8 +553,13 @@ def return_book(request, rental_id):
 
     # Check if the book belongs to the logged-in user
     if rental.student_profile.user != request.user:
-        message = 'You cannot return a book you did not rent.'
-        return render(request, 'error_alert.html', {'message': message})
+        response = """
+                    <script>
+                        alert('You cannot return a book you did not rent.');
+                        window.location.href = '{}';
+                    </script>
+                """.format(reverse('rented_books'))
+        return HttpResponse(response)
 
     # Mark the book as returned by setting is_rented to False
     rental.is_rented = False
@@ -500,6 +586,7 @@ def rented_books(request):
 
     return render(request, 'rented_books.html', {'rentals': rentals})
 
+@login_required
 def rent_details(request, book_id):
     try:
         # Fetch the book details
@@ -513,8 +600,13 @@ def rent_details(request, book_id):
         try:
             student_profile = StudentProfile.objects.get(user=request.user)
         except StudentProfile.DoesNotExist:
-            messages.error(request, "You need to create a student profile first.")
-            return redirect('view_membership_plans')
+            response = """
+                    <script>
+                        alert('You need to subscribe to a membership plan to rent books.');
+                        window.location.href = '{}';
+                    </script>
+                """.format(reverse('view_membership_plans'))
+            return HttpResponse(response)
 
         # Check if the book is already rented by the user
         rental = Rental.objects.filter(
@@ -540,7 +632,8 @@ def rent_details(request, book_id):
     except Books.DoesNotExist:
         messages.error(request, "Book not found.")
         return redirect('book_list_student')
-    
+
+@login_required    
 def process_payment(request, order_type_name, related_id):
     amount = 0  # Initialize the 'amount' variable
     current_date = timezone.now()
@@ -581,8 +674,14 @@ def process_payment(request, order_type_name, related_id):
             rental.due_date = timezone.now() + timedelta(days=student_profile.membership_plan.rent_duration)
             rental.save()
             # Redirect to the success page
-            messages.success(request, "Payment successful!")
-            return redirect('rented_books')  # Or redirect to the appropriate page
+            redirect_url = reverse('rented_books')
+            return HttpResponse(f"""
+                <script>
+                    alert('Payment successful!');
+                    alert('You have rented to the {book.book_name}. Enjoy Reading!');
+                    window.location.href = '{redirect_url}';
+                </script>
+            """)
         
         elif order_type_name == "membership":
             plan = get_object_or_404(MembershipPlan, id=related_id)
@@ -592,8 +691,14 @@ def process_payment(request, order_type_name, related_id):
             student_profile.expiry_date = date.today() + timedelta(days=plan.plan_duration * 30)
             student_profile.save()
             # Redirect to the success page
-            messages.success(request, "Payment successful!")
-            return redirect('view_membership_plans')  # Or redirect to the appropriate page
+            redirect_url = reverse('view_membership_plans')
+            return HttpResponse(f"""
+                <script>
+                    alert('Payment successful!');
+                    alert('You have subscribed to the {plan.plan_name} plan. Enjoy Reading!');
+                    window.location.href = '{redirect_url}';
+                </script>
+            """)
 
         # Redirect to the success page
         messages.success(request, "Payment successful!")
@@ -615,6 +720,7 @@ def process_payment(request, order_type_name, related_id):
     })
 
 #PURCHASE PAYMENT
+@login_required
 def process_payment_buy(request, order_type_name, related_id):
     current_date = timezone.now()
 
@@ -634,8 +740,14 @@ def process_payment_buy(request, order_type_name, related_id):
 
         # Validate quantity availability
         if book.quantity < quantity:
-            messages.error(request, "Insufficient stock available.")
-            return redirect('book_list')
+            response = """
+                        <script>
+                            alert('Insufficient stock available.');
+                            window.location.href = '{}';
+                        </script>
+                    """.format(reverse('book_list_student'))
+            return HttpResponse(response)
+        
 
         # Dummy payment processing logic
         if payment_type not in ['upi', 'cc', 'net_banking']:
@@ -667,8 +779,16 @@ def process_payment_buy(request, order_type_name, related_id):
         book.quantity -= quantity
         book.save()
 
-        messages.success(request, "Purchase successful!")
-        return redirect('purchased_books')  # Replace with the appropriate success page
+        messages.success(request, "Purchase Successful!! \n We will be sharing tracking ID, once the book has been dispatched. Thank You! ")
+        redirect_url = reverse('purchased_books')
+        return HttpResponse(f"""
+            <script>
+                alert('Payment successful!');
+                window.location.href = '{redirect_url}';
+            </script>
+        """)
+        
+        
 
     # Render payment form for GET request
     book = get_object_or_404(Books, id=related_id)
@@ -683,6 +803,7 @@ def process_payment_buy(request, order_type_name, related_id):
 
 
 #PURCHASE BOOK
+@login_required
 def purchase_book(request, book_id):
     try:
         # Get the book by ID
@@ -700,6 +821,7 @@ def purchase_book(request, book_id):
         return redirect('book_list_student')  # Redirect to the book list page
 
 #PURCHASE DETAILS
+@login_required
 def purchase_details(request, book_id):
     try:
         # Fetch the book details
@@ -731,6 +853,7 @@ def purchased_books(request):
     return render(request, 'purchase/purchased_books.html', {'purchases': purchases})
 
 #DYNAMIC AUTHOR AND GENRE ADDING
+@login_required
 def add_author_book(request):
     if request.method == 'POST':
         try:
@@ -742,6 +865,7 @@ def add_author_book(request):
             return JsonResponse({'success': False, 'error': 'Author name is required'})
         except json.JSONDecodeError:
             return JsonResponse({'success': False, 'error': 'Invalid JSON'})
+@login_required
 def add_genre_book(request):
     if request.method == 'POST':
         try:
@@ -755,25 +879,65 @@ def add_genre_book(request):
             return JsonResponse({'success': False, 'error': 'Invalid JSON'})
 
 #ADMIN VIEW STUDENT LIST
+@login_required
+# def student_list(request):
+#     # Get the search query
+#     search_query = request.GET.get('searchname', '')
+
+#     # Filter students by username or first name (case-insensitive)
+#     students = StudentProfile.objects.filter(user__isnull=False)
+#     if search_query:
+#         students = students.filter(
+#             Q(user__username__icontains=search_query) |
+#             Q(user__first_name__icontains=search_query)
+#         )
+
+#     context = {
+#         'students': students,
+#         'search_query': search_query,
+#     }
+#     return render(request, 'student_list.html', context)
+@login_required
+@user_passes_test(is_librarian, login_url='book_list_student')
 def student_list(request):
     # Get the search query
     search_query = request.GET.get('searchname', '')
 
-    # Filter students by username or first name (case-insensitive)
-    students = StudentProfile.objects.filter(user__isnull=False)
+    # Get all users who belong to the 'Student' group
+    students = User.objects.filter(groups__name='Student')
+
+    # If search query is provided, filter users based on it
     if search_query:
         students = students.filter(
-            Q(user__username__icontains=search_query) |
-            Q(user__first_name__icontains=search_query)
+            Q(username__icontains=search_query) |
+            Q(first_name__icontains=search_query)
         )
 
+    # List to store combined students (both with and without StudentProfile)
+    students_with_profiles = []
+
+    # Iterate through the filtered students and combine with their StudentProfile data if available
+    for student in students:
+        try:
+            # Try to get the StudentProfile associated with the user
+            profile = StudentProfile.objects.get(user=student)
+            students_with_profiles.append(profile)
+        except StudentProfile.DoesNotExist:
+            # If the user doesn't have a StudentProfile, create a placeholder with necessary fields
+            students_with_profiles.append({
+                'user': student,
+                'membership_plan': None,
+                'expiry_date': None,
+                'is_active': True,  # Default value
+            })
+
     context = {
-        'students': students,
+        'students': students_with_profiles,
         'search_query': search_query,
     }
     return render(request, 'student_list.html', context)
-
 #ADMIN RENTAL LIST
+@login_required
 def admin_rental_list(request):
     # Get the search query and rental status filter from the request
     search_query = request.GET.get('search', '')
@@ -804,6 +968,7 @@ def admin_rental_list(request):
 
     return render(request, 'admin_rental_list.html', context)
 
+@login_required
 def admin_purchase_list(request):
     # Get the search query from GET parameters
     search_query = request.GET.get('search', '')
@@ -822,6 +987,7 @@ def admin_purchase_list(request):
         'search_query': search_query,
     }
     return render(request, 'purchase_list.html', context)
+
 
 def book_detail(request, book_id):
     book = get_object_or_404(Books, id=book_id)
@@ -870,17 +1036,41 @@ def browse_books(request):
         'message': 'Results found' if books else 'No results found',
     })
 
+@login_required
 def read_book_interface(request, book_id):
     # Fetch the book object
     book = get_object_or_404(Books, id=book_id)
 
     # Ensure the book has content available
-    if not book.ISBN or not book.ISBN.book_content:
+    if not book.ISBN or not hasattr(book.ISBN, 'book_content') or not book.ISBN.book_content:
         raise Http404("PDF content not available for this book.")
 
     # Context to render the reading interface
     context = {
         'pdf_url': book.ISBN.book_content.url,  # URL for the PDF file
-        'book_name': book.book_name,  # Book name for additional context
+        'book_title': book.book_name,  # Book name for template
     }
     return render(request, 'read_book.html', context)
+
+#NOTIFICATION- add book
+# def add_book_notification(book):
+#     users = User.objects.all()
+#     message = f"New book '{book.book_name}' available!"
+#     for user in users:
+#         Notification.objects.create(user=user, message=message)
+
+def notifications(request):
+    user_notifications = Notification.objects.filter(user=request.user, is_read=False)
+    return {"notifications": user_notifications}
+
+def mark_notifications_as_read(request):
+    """
+    Marks all unread notifications for the logged-in user as read.
+    """
+    if request.user.is_authenticated:
+        Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+        return JsonResponse({"status": "success", "message": "Notifications marked as read."})
+    else:
+        return JsonResponse({"status": "error", "message": "User not authenticated."}, status=403)
+    
+    

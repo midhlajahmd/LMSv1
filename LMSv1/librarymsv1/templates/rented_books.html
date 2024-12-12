@@ -143,12 +143,47 @@
         .alert p {
             margin: 0;
         }
+        .rented-books-title {
+            font-size: 2rem; /* Larger font size for the title */
+            color: #333; /* Dark color for the text */
+            text-align: center; /* Center the title */
+            padding: 20px; /* Add padding around the title */
+            margin: 0; /* Remove default margin */
+            background-color: #FEF3EF; /* Subtle background color */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+            margin-top:20px;
+        }
+        /* Back Button Container */
+    .btn-back-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 0px;
+    }
+
+    /* Back Button */
+    .btn-back {
+        display: inline-block;
+        padding: 10px 20px;
+        text-decoration: none;
+        color: white;
+        background-color: #333; /* Dark background */
+        border-radius: 5px;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 400px;
+    }
+
+    .btn-back:hover {
+        background-color: #555; /* Lighter on hover */
+    }
     </style>
 {% endblock %}
 
 {% block body %}
 <div class="container">
-    <h1>Rented Books</h1>
+    <h1 class="rented-books-title">Rented Books</h1>
 
     <!-- Display messages for success or info alerts -->
     {% if messages %}
@@ -174,11 +209,11 @@
                     <p style="color:red;">Due Date: <strong>{{ rental.due_date }}</strong>   </p>
 
                     <!-- Read Button (redirect to read the book or open PDF) -->
-                    <a href="{{ rental.book.ISBN.book_content.url }}" class="btn-action" target="_blank">Read</a>
+                    <a href="{% url 'read_book_interface' rental.book.id %}" class="btn-action" target="_blank">Read</a>
 
                     <!-- Return Button -->
                     {% if rental.is_rented %}
-                        <a href="{% url 'return_book' rental.id %}" class="btn-action">Return</a>
+                    <a href="{% url 'return_book' rental.id %}" class="btn-action" onclick="confirmReturn(event, '{{ rental.book.book_name }}')">Return</a>
                     {% else %}
                         <p><strong>Returned</strong></p>
                     {% endif %}
@@ -186,7 +221,29 @@
             {% endfor %}
         </div>
     {% else %}
+    <div class="alert info">
         <p>You have no rented books.</p>
+    </div>
     {% endif %}
+    <div class="btn-back-container">
+        <a href="{% url 'book_list_student' %}" class="btn-back">Back to Dashboard</a>
+    </div>
 </div>
+<script>
+    function confirmReturn(event, bookName) {
+        // Prevent the default link behavior
+        event.preventDefault();
+
+        // Show the alert with the book name
+        const isConfirmed = confirm(`Are you sure you want to return the book: ${bookName}?`);
+
+        // If confirmed, proceed with the return action
+        if (isConfirmed) {
+            // Directly use the href attribute from the link for navigation
+            const returnUrl = event.target.getAttribute('href');
+            window.location.href = returnUrl; // Redirect to the return book page
+        }
+    }
+</script>
 {% endblock %}
+
