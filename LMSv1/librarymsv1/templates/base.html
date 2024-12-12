@@ -186,7 +186,42 @@ body, html {
     padding-top: 0; /* Remove padding if any */
 }
 
+/* Style for the dropdown menu */
+.dropdown-menu {
+    background-color: #f8d7da; /* Soft red background */
+    border-radius: 0.375rem; /* Rounded corners */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    min-width: 200px;
+    padding: 0;
+}
 
+/* Style for the dropdown items */
+.dropdown-item {
+    color: #721c24; /* Dark red text */
+    padding: 10px 20px; /* Add padding for better spacing */
+    font-size: 1rem;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+}
+
+/* Hover effect on dropdown items */
+.dropdown-item:hover {
+    background-color: #f5c6cb; /* Lighter red background on hover */
+    color: #491217; /* Darker red text on hover */
+}
+
+/* Divider between items */
+.dropdown-divider {
+    border-top: 1px solid #f1b0b7; /* Soft red divider */
+}
+
+/* Style for the dropdown toggle (if needed) */
+.nav-link.dropdown-toggle {
+    color: #721c24; /* Dark red for the text */
+}
+
+.nav-link.dropdown-toggle:hover {
+    color: #491217; /* Darker red on hover */
+}
 
 
 </style>
@@ -211,9 +246,29 @@ body, html {
             </span>
 
         {% elif is_student %}
-        <span class="navbar-text text-center flex-grow-2 border-left welcome-message">
-            Welcome <strong>{{ user.first_name }}</strong>
-        </span>
+        <div class="d-flex align-items-center">
+            <span class="navbar-text text-center welcome-message">
+                Welcome <strong>{{ user.first_name }}&emsp;</strong>
+            </span>
+        
+            <!-- Dropdown menu after the welcome message -->
+            <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <img src="{% static 'images/profile.webp' %}" alt="Profile Picture" class="rounded-circle" width="30" height="30">
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    {% comment %} <li><a class="dropdown-item" href="#">View Profile</a></li> {% endcomment %}
+                    <li><a class="dropdown-item" href="{% url 'view_membership_plans' %}">View Membership</a></li>
+                    <li><a class="dropdown-item" href="{% url 'rented_books' %}">View Rented Books</a></li>
+                    <li><a class="dropdown-item" href="{% url 'purchased_books' %}">View Purchased Books</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+
+        
+        
         {% endif %}
 
         <!-- Right: Links -->
@@ -228,7 +283,7 @@ body, html {
                             <a class="nav-link" href="{% url 'librarian_dashboard' %}">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#">Change Password</a>
+                            <a class="nav-link" href="{% url 'book_list_student' %}">View Site</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'logout' %}">Logout</a>
@@ -243,12 +298,25 @@ body, html {
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'view_membership_plans' %}">Membership</a>
                         </li>
-                        <li class="nav-item">
+                        {% comment %} <li class="nav-item">
                             <a class="nav-link" href="{% url 'student_profile' %}">Profile</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'logout' %}">Logout</a>
-                        </li>
+                        </li> {% endcomment %}
+                        {% comment %} <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <!-- Profile Icon (FontAwesome) -->
+                                <i class="fas fa-user"></i> <span class="d-none d-lg-inline">Profile</span>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" href="#">View Profile</a></li>
+                                <li><a class="dropdown-item" href="#">View Rented Books</a></li>
+                                <li><a class="dropdown-item" href="#">View Purchased Books</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                            </ul>
+                        </li> {% endcomment %}
                     {% endif %}
                 {% else %}
                     <li class="nav-item">

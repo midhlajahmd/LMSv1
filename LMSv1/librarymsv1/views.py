@@ -12,6 +12,7 @@ from django.http import JsonResponse
 import json
 from django.urls import reverse
 from django.db.models import Q
+from django.http import Http404
 
 
 # Create your views here.
@@ -868,3 +869,18 @@ def browse_books(request):
         'search_query': search_query,
         'message': 'Results found' if books else 'No results found',
     })
+
+def     read_book_interface(request, book_id):
+    # Fetch the book object
+    book = get_object_or_404(Books, id=book_id)
+
+    # Ensure the book has content available
+    if not book.ISBN or not book.ISBN.book_content:
+        raise Http404("PDF content not available for this book.")
+
+    # Context to render the reading interface
+    context = {
+        'pdf_url': book.ISBN.book_content.url,  # URL for the PDF file
+        'book_name': book.book_name,  # Book name for additional context
+    }
+    return render(request, 'read_book.html', context)

@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8e2e2; /* Soft pink background */
+            color: #5a3b3b;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            background-color: #f7b7b7; /* Soft red-pink */
+            padding: 12px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 2px solid #f7a1a1;
+        }
+
+        .navbar-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .navbar-links a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .navbar-links a:hover {
+            background-color: #f28e8e; /* Darker soft pink on hover */
+            color: #fff;
+        }
+
+        .notification-dropdown, .profile-dropdown {
+            position: relative;
+            margin-right: 20px;
+        }
+
+        .notification-icon, .profile-icon {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .notification-icon i, .profile-icon i {
+            font-size: 22px;
+            color: #fff;
+        }
+
+        .notification-count {
+            background-color: #ff6b6b; /* Red for notification count */
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 2px 5px;
+            border-radius: 50%;
+            position: absolute;
+            top: -5px;
+            right: -10px;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 35px;
+            right: 0;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            overflow: hidden;
+            z-index: 1000;
+            width: 250px;
+        }
+
+        .dropdown-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .dropdown-menu ul li {
+            padding: 12px 18px;
+            border-bottom: 1px solid #f7d4d4;
+            font-size: 14px;
+            color: #5a3b3b;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .dropdown-menu ul li:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-menu ul li.unread {
+            font-weight: bold;
+            background-color: #ffe0e0;
+            color: #ff6b6b;
+        }
+
+        .dropdown-menu ul li.unread:hover {
+            background-color: #f28e8e;
+            color: white;
+        }
+
+        .dropdown-menu ul li:hover {
+            background-color: #f7b7b7;
+            color: white;
+        }
+
+        .main-content {
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .main-content h1 {
+            font-size: 36px;
+            color: #f04c4c;
+        }
+
+        footer {
+            background-color: #f8d7da; /* Light pink footer */
+            padding: 10px;
+            text-align: center;
+            margin-top: 400px; 
+        }
+
+        footer a {
+            color: #f04c4c;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .notification-count {
+            background-color: #ff6b6b; /* Red for notification count */
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 2px 5px;
+            border-radius: 50%;
+            position: absolute;
+            top: -5px;
+            right: -10px;
+        }
+        
+        .notification-count.hidden {
+            display: none; /* Hide the count when it's zero */
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="navbar-links">
+            <a href="{% url 'student_author' %}">Authors</a>
+            <a href="{% url 'student_book' %}">Books</a>
+            <a href="{% url 'plan_list' %}">Membership Plan</a>
+        </div>
+
+        <div class="notification-dropdown">
+            <div class="notification-icon" onclick="toggleNotificationDropdown(); shakeBell()">
+                <i class="fas fa-bell"></i>
+                {% if notifications|length > 0 %}
+                    <span class="notification-count">{{ notifications|length }}</span>
+                {% endif %}
+            </div>
+            <div class="dropdown-menu" id="notificationDropdownMenu">
+                {% if notifications %}
+                    <ul>
+                        {% for notification in notifications %}
+                            <li class="notification-item {% if not notification.read %}unread{% endif %}" 
+                                data-id="{{ notification.id }}" 
+                                onclick="markAsRead({{ notification.id }})">
+                                {{ notification.message }}
+                                <small>Created at: {{ notification.created_at|date:"Y-m-d H:i" }}</small>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p style="padding: 10px; text-align: center; color: #5a3b3b;">No new notifications.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Profile Icon Dropdown -->
+        <div class="profile-dropdown">
+            <div class="profile-icon" onclick="toggleProfileDropdown()">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="dropdown-menu" id="profileDropdownMenu">
+                <ul>
+                    <li><a href="#">View Profile</a></li>
+                    <li><a href="{% url 'plan_list' %}">View Membership</a></li>
+                    <li><a href="#">View Rented Books</a></li>
+                    <li><a href="{% url 'logout' %}">Logout</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <h1>Welcome to the Student Dashboard</h1>
+    </div>
+
+    <footer>
+        <p>© 2024 Your Website | <a href="#">Privacy Policy</a> | <a href="#">Contact Us</a></p>
+    </footer>
+
+    <script>
+        function toggleNotificationDropdown() {
+            const dropdown = document.getElementById('notificationDropdownMenu');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function toggleProfileDropdown() {
+            const dropdown = document.getElementById('profileDropdownMenu');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function shakeBell() {
+            const bellIcon = document.querySelector('.notification-icon i');
+            bellIcon.classList.add('shake');
+            setTimeout(() => {
+                bellIcon.classList.remove('shake');
+            }, 500);
+        }
+
+        function markAsRead(notificationId) {
+            const notificationItem = document.querySelector(.notification-item[data-id="${notificationId}"]);
+            if (notificationItem) {
+                notificationItem.classList.remove('unread');
+            }
+        
+            fetch(/mark_as_read/${notificationId}/, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ 'notification_id': notificationId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the unread count
+                    const unreadNotifications = document.querySelectorAll('.notification-item.unread');
+                    const notificationCount = document.querySelector('.notification-count');
+        
+                    if (unreadNotifications.length > 0) {
+                        notificationCount.textContent = unreadNotifications.length;
+                        notificationCount.style.display = 'block'; // Show the number
+                    } else {
+                        notificationCount.style.display = 'none'; // Hide if no unread notifications
+                    }
+                }
+            })
+            .catch(error => {
+                console.error("Error updating notification:", error);
+            });
+        }
+        
+        window.onclick = function(event) {
+            const notificationDropdown = document.getElementById('notificationDropdownMenu');
+            const profileDropdown = document.getElementById('profileDropdownMenu');
+            const notificationIcon = document.querySelector('.notification-icon');
+            const profileIcon = document.querySelector('.profile-icon');
+    
+            if (!notificationDropdown.contains(event.target) && !notificationIcon.contains(event.target)) {
+                notificationDropdown.style.display = 'none';
+            }
+    
+            if (!profileDropdown.contains(event.target) && !profileIcon.contains(event.target)) {
+                profileDropdown.style.display = 'none';
+            }
+        };
+
+        window.onload = function() {
+            const notificationCount = document.querySelector('.notification-count');
+            const unreadNotifications = document.querySelectorAll('.notification-item.unread');
+            
+            if (unreadNotifications.length > 0) {
+                notificationCount.textContent = unreadNotifications.length;
+                notificationCount.style.display = 'block'; // Show the count
+            } else {
+                notificationCount.style.display = 'none'; // Hide the count if no unread notifications
+            }
+        };
+        
+
+        
+    </script>
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Topbar Example</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="topbar">
+        <div class="logo">
+            <h1>Library System</h1>
+        </div>
+        <div class="nav-links">
+            <a href="/home">Home</a>
+            <a href="/books">Books</a>
+            <a href="/profile">Profile</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </div>
+    <div class="content">
+        <!-- Your main content here -->
+        <p>Welcome to the Library System!</p>
+    </div>
+</body>
+</html>
+
+
+
+# views.py
+def home_page(request):
+    # Retrieve all notifications ordered by the creation date (newest first)
+    notifications = Notification.objects.all().order_by('-created_at')
+    return render(request, 'home_page.html', {'notifications': notifications})
+
+
+
+
+
+def dashboard(request):
+    notifications = Notification.objects.all().order_by('-created_at')
+    return render(request, 'dashboard.html', {'notifications': notifications})
+
+
+
+
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def mark_as_read(request, notification_id):
+    if request.method == "POST":
+        try:
+            notification = Notification.objects.get(id=notification_id)
+            notification.read = True  # Mark as read
+            notification.save()
+            return JsonResponse({"success": True})
+        except Notification.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Notification not found."}, status=404)
+    return JsonResponse({"success": False, "error": "Invalid request."}, status=400)
