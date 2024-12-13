@@ -204,37 +204,32 @@ def book_edit(request, pk):
 #         return HttpResponse(response)
 
 #     return render(request, 'books/book_form.html', {'form': form, 'title': 'Edit Book'})
-        book = get_object_or_404(Books, pk=pk)
+    book = get_object_or_404(Books, pk=pk)
 
-        # Editable fields
-        editable_fields = ['price', 'rent_percentage', 'quantity', 'status', 'hidden', 'featured', 'bestseller', 'noteworthy', 'writeplace', 'top20', 'recommend']
+    # Editable fields
+    editable_fields = ['price', 'rent_percentage', 'quantity', 'status', 'hidden', 'featured', 'bestseller', 'noteworthy', 'writeplace', 'top20', 'recommend']
 
-        # Initialize the form with POST data or existing instance
-        form = BookForm(
-            request.POST or None, 
-            instance=book
-        )
+    # Initialize the form with POST data or existing instance
+    form = BookForm(request.POST or None, instance=book)
 
-        # Show both editable and uneditable fields
-        for field in form.fields:
-            if field not in editable_fields:
-                # Make uneditable fields read-only or disabled in the form
-                form.fields[field].widget.attrs['readonly'] = 'readonly'
-                # Or you can use 'disabled' to prevent interaction (form submission will exclude these values)
-                # form.fields[field].widget.attrs['disabled'] = 'disabled'
+    # Disable uneditable fields (like ISBN, added_date)
+    for field in form.fields:
+        if field not in editable_fields:
+            # Use 'disabled' to prevent interaction and submission
+            form.fields[field].widget.attrs['readonly'] = 'readonly'
 
-        if form.is_valid():
-            form.save()
-            # Display alert and redirect
-            response = """
-                <script>
-                    alert('Book Edited successfully!');
-                    window.location.href = '{}';
-                </script>
-            """.format(reverse('book_list'))
-            return HttpResponse(response)
+    if form.is_valid():
+        form.save()
+        # Display alert and redirect
+        response = """
+            <script>
+                alert('Book Edited successfully!');
+                window.location.href = '{}';
+            </script>
+        """.format(reverse('book_list'))
+        return HttpResponse(response)
 
-        return render(request, 'books/book_form.html', {'form': form, 'title': 'Edit Book'})
+    return render(request, 'books/book_form.html', {'form': form, 'title': 'Edit Book'})
 
 #DELETE BOOK
 @login_required

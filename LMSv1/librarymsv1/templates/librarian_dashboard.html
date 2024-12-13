@@ -111,7 +111,8 @@
     <div class="main-content">
         <h2>Librarian Dashboard</h2>
         <span class="navbar-text text-center flex-grow-2 border-left welcome-message">
-            Welcome <strong>{{ user.first_name }}</strong>
+            Welcome <strong>{{ user.first_name }}</strong> 
+            <a href="{% url 'book_list_student' %}" class="welcome-message" style="text-decoration: none;color: #007bff;">View Site</a>
         </span>
 
         <!-- Cards for navigation -->

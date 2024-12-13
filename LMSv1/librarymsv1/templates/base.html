@@ -351,6 +351,9 @@ body, html {
                     {% endif %}
                 {% else %}
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'browse_books' %}">Browse</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'login' %}">Login</a>
                     </li>
                     <li class="nav-item">
