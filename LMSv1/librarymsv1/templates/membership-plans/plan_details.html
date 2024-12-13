@@ -76,10 +76,15 @@
 <div class="page-container">
     <div class="plan-details">
         <h2>{{ plan.plan_name }}</h2>
-        <p><strong>Price:</strong> ₹{{ plan.fee }}</p>
-        <p><strong>Plan Duration:</strong> {{ plan.plan_duration }} months</p>
-        <p><strong>Rent Duration:</strong> {{ plan.rent_duration }} days for a book</p>
-        <p><strong>Rental Limit:</strong> {{ plan.rent_limit }} books</p>
+        <p>Price: <strong>₹{{ plan.fee }}</strong></p>
+        <p>Plan Duration: <strong>{{ plan.plan_duration }} months</strong></p>
+        <p>Rent Duration: <strong>{{ plan.rent_duration }} days for a book </strong></p>
+        <p>Rental Limit: <strong>{{ plan.rent_limit }} books</strong></p>
+        <p>Available Genres:
+                {% for genre in plan.genres.all %}
+                     <strong>{{ genre.genre_name }}</strong>,
+                {% endfor %}
+        </p>
 
         <a href="{% url 'subscribe_to_plan' plan.id %}" class="btn btn-secondary">Pay</a>
         <a href="{% url 'view_membership_plans' %}" class="btn btn-secondary">Cancel</a>

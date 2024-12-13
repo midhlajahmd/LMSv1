@@ -4,13 +4,30 @@
 <h2 style="text-align: center; margin-bottom: 20px; margin-top:30px;">{{title}}</h2>
 <form method="post" class="book-form" id="book-form">
     {% csrf_token %}
+    {% if form.errors %}
+        <div class="form-errors" style="color: red;">
+            <ul>
+                {% for field in form %}
+                    {% if field.errors %}
+                        <li>{{ field.label }}: {{ field.errors }}</li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    <!-- Hidden inputs to pass the values of disabled fields -->
+    <input type="hidden" name="author" value="{{ form.author.value }}">
+    <input type="hidden" name="genre" value="{{ form.genre.value }}">
+    <input type="hidden" name="ISBN" value="{{ form.ISBN.value }}">
 
     <!-- Author Dropdown with Inline Form -->
     <div class="form-field" style="display: flex; flex-direction: column;">
         <label for="id_author">Author:</label>
         <div style="display: flex; align-items: center;">
             {{ form.author }}
-            <button type="button" id="add-author-btn" style="margin-left: 10px;">+</button>
+            {% if not form.instance.pk %}  <!-- Check if it's a new book, hide the "+" button if editing -->
+                <button type="button" id="add-author-btn" style="margin-left: 10px;">+</button>
+            {% endif %}
         </div>
         <div id="new-author-form" style="display: none; margin-top: 10px;">
             <input type="text" id="new-author-name" placeholder="New Author Name" style="width: 50%;">
@@ -24,7 +41,9 @@
         <label for="id_genre">Genre:</label>
         <div style="display: flex; align-items: center;">
             {{ form.genre }}
-            <button type="button" id="add-genre-btn" style="margin-left: 10px;">+</button>
+            {% if not form.instance.pk %}  <!-- Check if it's a new book, hide the "+" button if editing -->
+                <button type="button" id="add-genre-btn" style="margin-left: 10px;">+</button>
+            {% endif %}
         </div>
         <div id="new-genre-form" style="display: none; margin-top: 10px;">
             <input type="text" id="new-genre-name" placeholder="New Genre Name" style="width: 50%;">
@@ -33,15 +52,16 @@
         </div>
     </div>
 
-    <!-- Book Name Field -->
-    <div class="form-field">
-        <label for="id_book_name">Book Name:</label>
-        {{ form.book_name }}
-    </div>
+    
     <!-- Other Fields (ISBN, Price, Rent Percentage, etc.) -->
     <div class="form-field">
         <label for="id_ISBN">ISBN:</label>
         {{ form.ISBN }}
+    </div>
+    <!-- Book Name Field -->
+    <div class="form-field">
+        <label for="id_book_name">Book Name:</label>
+        {{ form.book_name }}
     </div>
     <div class="form-field">
         <label for="id_price">Price:</label>
@@ -95,9 +115,8 @@
         </div>
     </div>
 
-
     <button type="submit" class="btn-submit">Save</button>
-    <a href="{% url 'librarian_dashboard' %}" class="cancel-btn">Cancel</a>
+    <a href="{% url 'librarian_dashboard' %}" class="cancel-link">Cancel</a>
 </form>
 {% endblock %}
 
@@ -236,13 +255,13 @@
 
     #save-author-btn:hover,
     #save-genre-btn:hover {
-        background-color: #45a049;
+        background-color: #e74c3c;
     }
 
     /* Refresh Buttons for Author and Genre */
     #refresh-author-btn,
     #refresh-genre-btn {
-        background-color: #f1f1f1;
+        background-color: #e74c3c;
         color: #333;
         padding: 8px 16px;
         border: 1px solid #ccc;
@@ -253,8 +272,28 @@
 
     #refresh-author-btn:hover,
     #refresh-genre-btn:hover {
-        background-color: #ddd;
+        background-color:rgb(242, 62, 42);
     }
+
+    /* Add Author and Genre Button */
+    #add-author-btn,
+    #add-genre-btn {
+        background-color: #e74c3c;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin-left: 10px;
+    }
+
+    #add-author-btn:hover,
+    #add-genre-btn:hover {
+        background-color:rgb(233, 70, 52);
+    }
+
 
     /* Cancel Button Styling */
     .cancel-btn {

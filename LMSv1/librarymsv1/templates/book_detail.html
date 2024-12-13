@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ book.book_name }} - Details{% endblock %}
+{% block title %}{{ book.book_name }}{% endblock %}
 
 {% block style %}
     <style>
@@ -14,15 +14,15 @@
             margin-top: 50px;
             padding: 20px;
             box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2); /* Soft red shadow */
-            border-radius: 8px; /* Optional: Adds rounded corners to the container */
-            width: 80%; /* Reduce width to 80% of the container's parent */
-            max-width: 1000px; /* Optional: Set a maximum width */
-            margin-left: auto; /* Centers the container */
-            margin-right: auto; /* Centers the container */
-    }
+            border-radius: 8px;
+            width: 80%;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
 
-        /* Book Cover */
-        .book-cover {
+        /* Book Image */
+        .book-image {
             width: 200px;
             height: 280px;
             object-fit: cover;
@@ -38,7 +38,6 @@
             line-height: 1.5;
         }
 
-        /* Book Title */
         .book-title {
             font-size: 2.5rem;
             font-weight: 600;
@@ -46,20 +45,10 @@
             margin-bottom: 15px;
         }
 
-        /* Common Section Styling (Author, Genre, Description, Price, Rent) */
-        .book-author,
-        .book-genre,
-        .book-description,
-        .price-section,
-        .rent-section {
-            margin-top: 10px;
-        }
-
-        .book-author,
-        .book-genre,
-        .book-description {
+        .book-details {
             font-size: 1rem;
             color: #777;
+            margin-bottom: 10px;
         }
 
         .price-section,
@@ -97,11 +86,10 @@
             background-color: #a93226;
         }
 
-        /* Review Button */
-        .btn-review {
-            display: inline-block;
+        /* Add Review and Comment Section */
+        .btn-review, .btn-comment {
             padding: 12px 20px;
-            background-color:rgb(231, 140, 60); /* Red color for consistency */
+            background-color: rgb(231, 140, 60);
             color: white;
             font-size: 1rem;
             font-weight: 600;
@@ -109,23 +97,22 @@
             text-decoration: none;
             border-radius: 5px;
             transition: background-color 0.3s ease;
-            width: 48%; /* Similar width to Rent and Buy buttons */
-            margin-top: 15px; /* Space between buttons */
+            margin-top: 20px;
         }
-    
-        .btn-review:hover {
-            background-color:rgb(227, 137, 40); /* Darker red on hover */
+
+        .btn-review:hover, .btn-comment:hover {
+            background-color: rgb(227, 137, 40);
         }
-    
-        .btn-review:active {
-            background-color: #a93226; /* Even darker red when clicked */
+
+        .btn-review:active, .btn-comment:active {
+            background-color: #a93226;
         }
 
         /* Back Button */
         .btn-back-container {
             text-align: center;
             margin-top: 30px;
-            margin-bottom:100px;
+            margin-bottom: 100px;
         }
 
         .btn-back {
@@ -135,11 +122,30 @@
             text-decoration: none;
             border-radius: 5px;
             font-weight: 600;
-            
         }
 
         .btn-back:hover {
             background-color: #555;
+        }
+
+        
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            background-color: #f8f8f8;
+            color: #333;
+        }
+
+        footer a {
+            color: #e74c3c;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
         }
         .read-more-link {
             color: #e74c3c; /* Red color */
@@ -156,65 +162,294 @@
         .read-more-link:active {
             color: #a93226; /* Even darker red when clicked */
         }
+        .price-section,
+        .rent-section {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: #333;
+        }
+        /* General container styling */
+.review-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(206, 118, 118, 0.98);
+    background-color:rgb(255, 255, 255);
+}
+
+/* Add Review Section */
+.review-container h4 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 10px;
+    margin-top:10px;
+}
+.review-container h3 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 10px;
+    margin-top:10px;
+}
+
+.btn-review {
+    display: block;
+    margin: 0 auto;
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #f08080;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top:15px;
+    margin-bottom:10px;
+}
+
+.btn-review:hover {
+    background-color:rgb(239, 97, 97);
+}
+
+#review_id {
+    margin-top: 15px;
+}
+
+#review_id form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#review_id .btn-primary {
+    align-self: center;
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #f08080;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+#review_id .btn-primary:hover {
+    background-color:rgb(234, 83, 83);
+}
+
+/* Display Reviews Section */
+.reviews ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.reviews li {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.reviews h5 {
+    margin: 0 0 5px;
+    font-size: 1rem;
+    color:rgb(240, 57, 57);
+}
+
+.reviews div {
+    margin-bottom: 10px;
+    color: #ff9900;
+    font-size: 1.2rem;
+}
+
+.reviews h4 {
+    margin: 0 0 10px;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.reviews span {
+    display: block;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .review-container {
+        padding: 15px;
+    }
+
+    .btn-review, #review_id .btn-primary {
+        font-size: 0.9rem;
+        padding: 8px 16px;
+    }
+}
+.styled-form {
+    max-width: 600px;
+    margin: 0 auto; /* Center align the form */
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-top:10px;
+}
+
+/* Common styling for all inputs, textareas, and selects inside .styled-form */
+.styled-form input,
+.styled-form textarea,
+.styled-form select {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+/* Focus effect */
+.styled-form input:focus,
+.styled-form textarea:focus,
+.styled-form select:focus {
+    border-color: #f08080;
+    outline: none;
+    box-shadow: 0 0 5px rgb(233, 95, 120);
+}
+
+/* Labels styling */
+.styled-form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+/* Submit button styling */
+.submit-button {
+    display: inline-block;
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    background-color: #f08080;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+        
     </style>
 {% endblock %}
 
 {% block body %}
-    <div class="container">
+    <div class="container my-5">
         <div class="book-detail-container">
-            <!-- Book Cover -->
-            <img src="{{ book_content.book_cover.url }}" alt="Book Cover" class="book-cover">
+            <!-- Book Image -->
+            <img src="{{ book_content.book_cover.url }}" alt="{{ book.book_name }}" class="book-image">
 
-            <!-- Book Information -->
+            <!-- Book Info -->
             <div class="book-info">
                 <div class="book-title">{{ book.book_name }}</div>
-                <div class="book-author">Author: <strong>{{ book.author.author_name }}</strong></div>
-                <div class="book-genre">Genre: <strong>{{ book.genre.genre_name }}</strong></div>
-
                 <div class="book-description">
-                    <span id="short-description">{{ book_content.description|slice:":150" }}</span>
+                    <span id="short-description">{{ book.book_name }} is a {{ book_content.description|slice:":150" }}</span>
                     <span id="full-description" style="display: none;">{{ book_content.description }}</span>
                     <a href="javascript:void(0);" id="read-more-link" class="read-more-link">Read More</a>
-                </div>
-
+                </div><br>
+                <div class="book-author">Author: <strong>{{ book.author.author_name }}</strong></div>
+                <div class="book-genre">Genre: <strong>{{ book.genre.genre_name }}</strong></div>
+                <br>
                 <div class="price-section">Price: <strong>₹{{ book.price }}</strong></div>
                 <div class="rent-section">Rent: <strong>₹{{ book.rent }}</strong></div>
 
-                <!-- Rent, Buy and Review buttons -->
+                <!-- Rent, Buy Buttons -->
                 <div class="btn-rentandbuy-container">
-                    <a href="{% url 'rent_details' book.id %}" class="btn-rentandbuy">Rent</a>
-                    <a href="{% url 'purchase_details' book.id %}" class="btn-rentandbuy">Buy</a>
+                    <a href="{% url 'rent_details' book.id %}" class="btn-rentandbuy">Rent Book</a>
+                    <a href="{% url 'purchase_details' book.id %}" class="btn-rentandbuy">Purchase Book</a>
                 </div>
-
-                <!-- Review Button -->
-                <a href="#" class="btn-review">Write a Review</a>
             </div>
         </div>
+    </div>
 
-        <!-- Back Button -->
-        <div class="btn-back-container">
-            <a href="{% url 'book_list_student' %}" class="btn-back">Back to Dashboard</a>
+    <div class="review-container">
+        <!-- Add Review Section -->
+        <div class="container my-5 review-container">
+            {% comment %} <h4><strong>Add Review</strong></h4> {% endcomment %}
+            <button class="btn-review" onclick="open_review()">Add Review</button>
+            <div id="review_id" class="container my-5" style="display: none;">
+                <form method="post" enctype="multipart/form-data" novalidate class="styled-form">
+                    {% csrf_token %}
+                    {{ review_form.as_p }}
+                    <button type="submit" name="add_review" class="btn btn-primary">Submit Review</button>
+                </form>
+            </div>
+        </div>
+    
+        <!-- Display Reviews -->
+        <div class="container my-5 reviews">
+            <h3>Reviews</h3>
+            <ul>
+                {% if reviews %}
+                    {% for review in reviews %}
+                        <li>
+                            <h5>{{ review.review_author.first_name }}</h5>
+                            <div>
+                                {% for i in review.filled_stars %}★{% endfor %}
+                                {% for i in review.empty_stars %}☆{% endfor %}
+                            </div>
+                            
+                            <span>{{ review.description }}</span>
+                            
+                        </li>
+                    {% endfor %}
+                {% endif %}
+            </ul>
         </div>
     </div>
+    
+    
+
+    <!-- Back Button -->
+    <div class="btn-back-container">
+        <a href="{% url 'book_list_student' %}" class="btn-back">Back to Dashboard</a>
+    </div>
+
+
 {% endblock %}
 
 {% block script %}
-<script>
-    document.getElementById('read-more-link').addEventListener('click', function() {
-        var shortDesc = document.getElementById('short-description');
-        var fullDesc = document.getElementById('full-description');
-        var readMoreLink = document.getElementById('read-more-link');
-        
-        if (fullDesc.style.display === "none") {
-            fullDesc.style.display = "inline";
-            shortDesc.style.display = "none";
-            readMoreLink.textContent = "Read Less";
-        } else {
-            fullDesc.style.display = "none";
-            shortDesc.style.display = "inline";
-            readMoreLink.textContent = "Read More";
+    <script>
+        function open_review() {
+            const reviewSection = document.getElementById("review_id");
+            reviewSection.style.display = reviewSection.style.display === "none" ? "block" : "none";
         }
-    });
-</script>
 
+        function open_comment_box() {
+            const commentBox = document.getElementById("comment_boxid");
+            commentBox.style.display = commentBox.style.display === 'none' ? 'block' : 'none';
+        }
+        document.getElementById('read-more-link').addEventListener('click', function() {
+            var shortDesc = document.getElementById('short-description');
+            var fullDesc = document.getElementById('full-description');
+            var readMoreLink = document.getElementById('read-more-link');
+            
+            if (fullDesc.style.display === "none") {
+                fullDesc.style.display = "inline";
+                shortDesc.style.display = "none";
+                readMoreLink.textContent = "Read Less";
+            } else {
+                fullDesc.style.display = "none";
+                shortDesc.style.display = "inline";
+                readMoreLink.textContent = "Read More";
+            }
+        });
+    </script>
 {% endblock %}
+

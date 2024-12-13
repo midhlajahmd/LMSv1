@@ -3,8 +3,8 @@ from .views import user_login,librarian_dashboard,home_page,register,custom_logo
 from .views import author_list,add_author,edit_author,delete_author,genre_list,add_genre,edit_genre,delete_genre
 from .views import add_or_edit_plan,manage_membership_plans,view_membership_plans,subscribe_to_plan,upgrade_plan,student_profile,plan_details
 from .views import book_list_student,rent_book,return_book,rented_books,rent_details,process_payment,purchase_details,purchase_book,process_payment_buy
-from .views import purchased_books,add_author_book,add_genre_book,student_list,admin_rental_list,admin_purchase_list,book_detail
-from .views import browse_books,read_book_interface,mark_notifications_as_read
+from .views import purchased_books,add_author_book,add_genre_book,student_list,admin_rental_list,admin_purchase_list
+from .views import browse_books,read_book_interface,mark_notifications_as_read,book_view,get_book_name
 
 urlpatterns= [
     # path('', home_page, name='home_page'),
@@ -59,10 +59,13 @@ urlpatterns= [
     path('librarian-dashboard/rented-books-list/', admin_rental_list, name='admin_rental_list'),
     path('librarian-dashboard/purchased-book-list/', admin_purchase_list, name='admin_purchase_list'),
     
-    path('book/<int:book_id>/', book_detail, name='book_detail'),
+    # path('book/<int:book_id>/', book_detail, name='book_detail'),
+    path('book/<int:pk>/', book_view, name='book_detail'),
     path('browse/', browse_books, name='browse_books'),
 
     path('read/<int:book_id>/', read_book_interface, name='read_book_interface'),
     path('mark-notifications-as-read/', mark_notifications_as_read, name='mark_notifications_as_read'),
+
+    path('get-book-name/<int:isbn_id>/', get_book_name, name='get_book_name'),
     
 ]

@@ -39,6 +39,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        margin-top:10px;
 }
 
     /* Search and Add Book Button Container */
@@ -222,6 +223,10 @@
         <a href="?hidden=true"><button>Hidden</button></a>
     </div>
 </div>
+<!-- Add Book Button -->
+<div class="btn-back-container">
+    <a href="{% url 'book_add' %}">Add a New Book</a>
+</div>
 
 <!-- Book Table -->
 <table>
@@ -258,10 +263,7 @@
     </tbody>
 </table>
 
-<!-- Add Book Button -->
-<div class="btn-back-container">
-    <a href="{% url 'book_add' %}">Add a New Book</a>
-</div>
+
 <!-- Back Button -->
 <div class="btn-back-container">
     <a href="{% url 'librarian_dashboard' %}" class="btn-back">Back to Dashboard</a>

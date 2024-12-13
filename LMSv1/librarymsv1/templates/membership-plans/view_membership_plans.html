@@ -190,7 +190,12 @@
                     Fee: ₹ {{ current_subscription.fee }}<br>
                     Rent Limit: {{ current_subscription.rent_limit }} books<br>
                     Rent Duration: {{ current_subscription.rent_duration }} days<br>
-                    Plan Expiry: {{ request.user.studentprofile.expiry_date }}
+                    Plan Expiry: {{ request.user.studentprofile.expiry_date }}<br>
+                    Available Genres:
+                        {% for genre in current_subscription.genres.all %}
+                             {{ genre.genre_name }},
+                        {% endfor %}
+                    
                 </p>
 
                 <!-- Check if the current plan is the highest plan -->
@@ -213,6 +218,11 @@
                                 <p><strong>Fee:</strong> ₹ {{ plan.fee }}</p>
                                 <p><strong>Rent Limit:</strong> {{ plan.rent_limit }} books</p>
                                 <p><strong>Rent Duration:</strong> {{ plan.rent_duration }} days</p>
+                                <p>Available Genres:
+                                    {% for genre in plan.genres.all %}
+                                         <strong>{{ genre.genre_name }}</strong>,
+                                    {% endfor %}
+                                </p>
                                 <a href="{% url 'plan_details' plan.id %}" class="btn">Upgrade to this plan</a>
                             </div>
                         {% endif %}
@@ -234,6 +244,11 @@
                             <p><strong>Fee:</strong> ₹ {{ plan.fee }}</p>
                             <p><strong>Rent Limit:</strong> {{ plan.rent_limit }} books</p>
                             <p><strong>Rent Duration:</strong> {{ plan.rent_duration }} days</p>
+                            <p>Available Genres:
+                                {% for genre in plan.genres.all %}
+                                     <strong>{{ genre.genre_name }}</strong>,
+                                {% endfor %}
+                            </p>
                             <a href="{% url 'plan_details' plan.id %}" class="btn">Subscribe</a>
                         </div>
                     {% endfor %}

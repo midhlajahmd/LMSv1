@@ -1,11 +1,11 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required,user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import LoginForm,UserRegistrationForm,BookForm,AuthorForm,GenreForm,MembershipPlanForm
+from .forms import LoginForm,UserRegistrationForm,BookForm,AuthorForm,GenreForm,MembershipPlanForm,AddCommentForm,AddReviewForm
 from django.contrib import messages
 from django.http import HttpResponse
 from django.contrib.auth.models import User,Group
-from .models import Books,Authors,Genres,MembershipPlan,StudentProfile,Rental,BookContent,Payment,BookPurchase,Notification
+from .models import Books,Authors,Genres,MembershipPlan,StudentProfile,Rental,BookContent,Payment,BookPurchase,Notification,comments,Reviews
 from datetime import date, timedelta
 from django.utils import timezone
 from django.http import JsonResponse
@@ -45,7 +45,14 @@ def user_login(request):
                 """.format(reverse('book_list_student'))
                 return HttpResponse(response)
             else:
-                return HttpResponse("NOt assigned a role")
+                # Display alert and redirect
+                response = """
+                    <script>
+                        alert('Invalid Username/Password');
+                        window.location.href = '{}';
+                    </script>
+                """.format(reverse('login'))
+                return HttpResponse(response)
         else:
             # Display alert and redirect
             response = """
@@ -75,7 +82,7 @@ def custom_logout(request):
 def librarian_dashboard(request):
     return render(request, 'librarian_dashboard.html')
 
-#@login_required
+@login_required
 def home_page(request):
     return render(request, 'home_page.html')
 
@@ -175,7 +182,7 @@ def book_add(request):
 #UPDATE EXISTING BOOK
 @login_required
 @user_passes_test(is_librarian, login_url='book_list_student')
-def book_edit(request, pk):
+# def book_edit(request, pk):
 #     book = get_object_or_404(Books, pk=pk)
 
 #     # Editable fields
@@ -204,6 +211,34 @@ def book_edit(request, pk):
 #         return HttpResponse(response)
 
 #     return render(request, 'books/book_form.html', {'form': form, 'title': 'Edit Book'})
+   
+    # book = get_object_or_404(Books, pk=pk)
+
+    # # Editable fields
+    # editable_fields = ['price', 'rent_percentage', 'quantity', 'status', 'hidden', 'featured', 'bestseller', 'noteworthy', 'writeplace', 'top20', 'recommend']
+
+    # # Initialize the form with POST data or existing instance
+    # form = BookForm(request.POST or None, instance=book)
+
+    # # Disable uneditable fields (like ISBN, added_date)
+    # for field in form.fields:
+    #     if field not in editable_fields:
+    #         # Use 'disabled' to prevent interaction and submission
+    #         form.fields[field].widget.attrs['readonly'] = 'readonly'
+
+    # if form.is_valid():
+    #     form.save()
+    #     # Display alert and redirect
+    #     response = """
+    #         <script>
+    #             alert('Book Edited successfully!');
+    #             window.location.href = '{}';
+    #         </script>
+    #     """.format(reverse('book_list'))
+    #     return HttpResponse(response)
+
+    # return render(request, 'books/book_form.html', {'form': form, 'title': 'Edit Book',})
+def book_edit(request, pk):
     book = get_object_or_404(Books, pk=pk)
 
     # Editable fields
@@ -212,11 +247,21 @@ def book_edit(request, pk):
     # Initialize the form with POST data or existing instance
     form = BookForm(request.POST or None, instance=book)
 
-    # Disable uneditable fields (like ISBN, added_date)
+    # Disable uneditable fields (like ISBN, author, genre)
     for field in form.fields:
         if field not in editable_fields:
-            # Use 'disabled' to prevent interaction and submission
             form.fields[field].widget.attrs['readonly'] = 'readonly'
+
+    # Disable the dropdowns for ISBN, author, and genre
+    form.fields['ISBN'].widget.attrs['disabled'] = 'disabled'
+    form.fields['author'].widget.attrs['disabled'] = 'disabled'
+    form.fields['genre'].widget.attrs['disabled'] = 'disabled'
+
+    # Add hidden inputs for these fields if they are needed
+    if not request.POST and form.is_valid():  # On initial load
+        form.fields['ISBN'].widget.attrs['value'] = book.ISBN
+        form.fields['author'].widget.attrs['value'] = book.author.id  # Assuming author is a foreign key
+        form.fields['genre'].widget.attrs['value'] = book.genre.id  # Assuming genre is a foreign key
 
     if form.is_valid():
         form.save()
@@ -229,7 +274,7 @@ def book_edit(request, pk):
         """.format(reverse('book_list'))
         return HttpResponse(response)
 
-    return render(request, 'books/book_form.html', {'form': form, 'title': 'Edit Book'})
+    return render(request, 'books/book_form.html', {'form': form, 'title': 'Edit Book',})
 
 #DELETE BOOK
 @login_required
@@ -489,6 +534,66 @@ def book_list_student(request):
 # Rent a book
 # Check if the user is logged in and has a membership plan
 # Integrated payment
+# @login_required
+# def rent_book(request, book_id):
+#     try:
+#         # Get the book by ID
+#         book = get_object_or_404(Books, id=book_id)
+
+#         # Ensure the user is logged in (this is already ensured by @login_required)
+#         # Check if the student profile exists
+#         student_profile = StudentProfile.objects.get(user=request.user)
+#         membership_plan = student_profile.membership_plan
+#         if not membership_plan:
+#             # Display alert and redirect
+#             response = """
+#                 <script>
+#                     alert('You need to subscribe to a membership plan to rent books.');
+#                     window.location.href = '{}';
+#                 </script>
+#             """.format(reverse('view_membership_plans'))
+#             return HttpResponse(response)
+        
+#         # Check if the membership has access to the book's genre
+#         book_genre = book.genre  # Assuming `book.genre` is a ForeignKey to Genres
+#         if book_genre not in membership_plan.genres.all():
+#             response = """
+#                 <script>
+#                     alert("Your membership does not include access to the '" + "{}" + "' genre.");
+#                     window.location.href = '{}';
+#                 </script>
+#             """.format(book_genre.genre_name, reverse('view_membership_plans'))
+#             return HttpResponse(response)
+
+#         # Check if the user has exceeded the rental limit
+#         active_rentals_count = Rental.objects.filter(
+#             student_profile=student_profile,
+#             is_rented=True
+#         ).count()
+
+#         # Check if the book is already rented by the student
+#         if Rental.objects.filter(student_profile=student_profile, book=book, is_rented=True).exists():
+#             response = """
+#                     <script>
+#                         alert('You have already rented this book.');
+#                         window.location.href = '{}';
+#                     </script>
+#                 """.format(reverse('rented_books'))
+#             return HttpResponse(response)
+
+#         rental_limit = student_profile.membership_plan.rent_limit  # Assuming 'rental_limit' is a field in membership_plan
+#         if active_rentals_count >= rental_limit:
+#             return render(request, 'alert_and_redirect.html', {
+#                 'alert_message': f"You cannot rent more than {rental_limit} books.",
+#                 'redirect_url': 'book_list_student'  # Named URL for redirection
+#             })
+
+#         # Redirect to the payment processing view to handle payment before finalizing the rental
+#         return redirect('process_payment', order_type_name="rental", related_id=book.id)
+
+#     except Books.DoesNotExist:
+#         messages.error(request, "Book not found.")
+#         return redirect('book_list_student')  # Redirect to the book list page
 @login_required
 def rent_book(request, book_id):
     try:
@@ -508,15 +613,30 @@ def rent_book(request, book_id):
                 </script>
             """.format(reverse('view_membership_plans'))
             return HttpResponse(response)
-        
-        
+
         # Check if the user has exceeded the rental limit
         active_rentals_count = Rental.objects.filter(
             student_profile=student_profile,
             is_rented=True
         ).count()
 
-        # Check if the book is already rented by the student
+        rental_limit = student_profile.membership_plan.rent_limit  # Assuming 'rental_limit' is a field in membership_plan
+        if active_rentals_count >= rental_limit:
+            response = f"""
+                <script>
+                    alert("You cannot rent more than {rental_limit} books.");
+                    window.location.href = '{reverse('view_membership_plans')}';
+                </script>
+            """
+            return HttpResponse(response)
+
+        # Check if the membership has access to the book's genre
+        book_genre = book.genre  # Assuming `book.genre` is a ForeignKey to Genres
+        if book_genre not in membership_plan.genres.all():
+            # If the plan does not include this genre, redirect to payment processing
+            return redirect('process_payment', order_type_name="rental", related_id=book.id)
+
+        # Check if the user has already rented this book
         if Rental.objects.filter(student_profile=student_profile, book=book, is_rented=True).exists():
             response = """
                     <script>
@@ -526,15 +646,19 @@ def rent_book(request, book_id):
                 """.format(reverse('rented_books'))
             return HttpResponse(response)
 
-        rental_limit = student_profile.membership_plan.rent_limit  # Assuming 'rental_limit' is a field in membership_plan
-        if active_rentals_count >= rental_limit:
-            return render(request, 'alert_and_redirect.html', {
-                'alert_message': f"You cannot rent more than {rental_limit} books.",
-                'redirect_url': 'book_list_student'  # Named URL for redirection
-            })
+        # Rent the book for free if the plan includes the genre
+        rental = Rental.objects.create(student_profile=student_profile, book=book, is_rented=True)
+        rental.due_date = timezone.now() + timedelta(days=student_profile.membership_plan.rent_duration)
+        rental.save()
 
-        # Redirect to the payment processing view to handle payment before finalizing the rental
-        return redirect('process_payment', order_type_name="rental", related_id=book.id)
+        # Redirect to the success page
+        redirect_url = reverse('rented_books')
+        return HttpResponse(f"""
+            <script>
+                alert('You have rented the book: {book.book_name}. Enjoy Reading!');
+                window.location.href = '{redirect_url}';
+            </script>
+        """)
 
     except Books.DoesNotExist:
         messages.error(request, "Book not found.")
@@ -856,7 +980,7 @@ def add_author_book(request):
             new_author_name = data.get('author_name')
             if new_author_name:
                 author = Authors.objects.create(author_name=new_author_name)
-                return JsonResponse({'success': True, 'author_id': author.id, 'author_name': author.name})
+                return JsonResponse({'success': True, 'author_id': author.id, 'author_name': author.author_name})
             return JsonResponse({'success': False, 'error': 'Author name is required'})
         except json.JSONDecodeError:
             return JsonResponse({'success': False, 'error': 'Invalid JSON'})
@@ -984,10 +1108,10 @@ def admin_purchase_list(request):
     return render(request, 'purchase_list.html', context)
 
 
-def book_detail(request, book_id):
-    book = get_object_or_404(Books, id=book_id)
-    book_content = book.ISBN  # Accessing the related BookContent through the ISBN ForeignKey
-    return render(request, 'book_detail.html', {'book': book, 'book_content': book_content})
+# def book_detail(request, book_id):
+#     book = get_object_or_404(Books, id=book_id)
+#     book_content = book.ISBN  # Accessing the related BookContent through the ISBN ForeignKey
+#     return render(request, 'book_detail.html', {'book': book, 'book_content': book_content})
 
 def browse_books(request):
     search_query = request.GET.get('searchbook', '')
@@ -1068,4 +1192,53 @@ def mark_notifications_as_read(request):
     else:
         return JsonResponse({"status": "error", "message": "User not authenticated."}, status=403)
     
-    
+
+#REVIEWS
+@login_required
+def book_view(request, pk):
+    book = get_object_or_404(Books, id=pk)
+    book_content = book.ISBN
+    comment_list = comments.objects.filter(book_comments=book)
+    reviews = Reviews.objects.filter(post=book)
+
+    # Prepare star ranges for each review
+    for review in reviews:
+        review.filled_stars = range(review.rating)  # Range for filled stars
+        review.empty_stars = range(5 - review.rating)  # Range for empty stars
+
+    # Initialize forms for comments and reviews
+    comment_form = AddCommentForm()
+    review_form = AddReviewForm()
+
+    if request.method == "POST":
+        if "add_comment" in request.POST:  # Handle comment submission
+            comment_form = AddCommentForm(request.POST)
+            if comment_form.is_valid():
+                new_comment = comment_form.save(commit=False)
+                new_comment.book_comments = book
+                new_comment.save()
+                return redirect('book_detail', pk=pk)
+        elif "add_review" in request.POST:  # Handle review submission
+            review_form = AddReviewForm(request.POST)
+            if review_form.is_valid():
+                new_review = review_form.save(commit=False)
+                new_review.post = book
+                new_review.review_author = request.user
+                new_review.save()
+                return redirect('book_detail', pk=pk)
+
+    return render(request, "book_detail.html", {
+        'book': book,
+        "comm": comment_list,
+        'reviews': reviews,
+        'comment_form': comment_form,
+        'review_form': review_form,
+        'book_content': book_content
+    })
+
+def get_book_name(request, isbn_id):
+    try:
+        book = BookContent.objects.get(id=isbn_id)
+        return JsonResponse({'book_name': book.book_name})
+    except BookContent.DoesNotExist:
+        return JsonResponse({'error': 'Book not found'}, status=404)

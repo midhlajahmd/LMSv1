@@ -1,5 +1,5 @@
 from django import forms
-from .models import Books,Authors, Genres, MembershipPlan
+from .models import Books,Authors, Genres, MembershipPlan, comments, Reviews,BookContent
 from django.forms import ValidationError
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
@@ -85,6 +85,14 @@ class BookForm(forms.ModelForm):
             }),
             
         }
+    # Override the form field for ISBN to display book name
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Use 'id' as the value and 'book_name' as the label in the choices
+        self.fields['ISBN'].queryset = BookContent.objects.all()
+        self.fields['ISBN'].widget = forms.Select(
+            choices=[(book.id, book.book_name) for book in BookContent.objects.all()]
+        )
 #AUTHORS
 class AuthorForm(forms.ModelForm):
     class Meta:
@@ -105,6 +113,28 @@ class GenreForm(forms.ModelForm):
 
 # Form for MEMBERSHIP PLAN
 class MembershipPlanForm(forms.ModelForm):
+    # class Meta:
+    #     model = MembershipPlan
+    #     fields = ['plan_name', 'rent_limit', 'rent_duration', 'plan_duration', 'fee']
+    genres = forms.ModelMultipleChoiceField(
+        queryset=Genres.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+        label="Available Genres"
+    )
+
     class Meta:
         model = MembershipPlan
-        fields = ['plan_name', 'rent_limit', 'rent_duration', 'plan_duration', 'fee']
+        fields = ['plan_name', 'rent_limit', 'rent_duration', 'plan_duration', 'fee', 'genres']
+
+#REVIEW
+class AddCommentForm(forms.ModelForm):
+    class Meta:
+        model=comments
+        fields=('comment_text',)
+
+
+class AddReviewForm(forms.ModelForm):
+    class Meta:
+        model= Reviews
+        fields=('rating','title','description')

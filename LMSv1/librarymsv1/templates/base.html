@@ -151,6 +151,7 @@ body {
     color: #e74c3c;
     text-decoration: none;
     font-weight: 400;
+    margin-top:10px;
     
 }
 
@@ -222,7 +223,23 @@ body, html {
 .nav-link.dropdown-toggle:hover {
     color: #491217; /* Darker red on hover */
 }
+/* Footer */
+footer {
+    text-align: center;
+    margin-top: 50px;
+    padding: 20px;
+    background-color: #f8f8f8;
+    color: #333;
+}
 
+footer a {
+    color: #e74c3c;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
 
 </style>
 
@@ -316,7 +333,7 @@ body, html {
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                         </li>
-                    {% else %}
+                    {% elif is_student %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'book_list_student' %}">Home</a>
                         </li>
@@ -348,6 +365,10 @@ body, html {
                                 <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
                             </ul>
                         </li> {% endcomment %}
+                        {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                        </li>
                     {% endif %}
                 {% else %}
                     <li class="nav-item">
@@ -378,7 +399,7 @@ body, html {
 <!-- Footer -->
 <footer class="bg-light text-center text-lg-start mt-auto">
     <div class="text-center p-3">
-        © All Rights Reserved <a class="text-dark" href="#">Privacy Policy</a>
+        <p>&copy; 2024 QuillQuest Library. <a href="#">Terms &amp; Conditions</a> | <a href="#">Privacy Policy</a></p>
     </div>
 </footer>
 

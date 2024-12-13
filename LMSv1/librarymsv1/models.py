@@ -88,7 +88,8 @@ class MembershipPlan(models.Model):
     rent_limit= models.PositiveIntegerField()
     rent_duration= models.PositiveIntegerField()
     plan_duration= models.PositiveIntegerField()
-    fee= models.DecimalField(max_digits=10, decimal_places=2) 
+    fee= models.DecimalField(max_digits=10, decimal_places=2)
+    genres = models.ManyToManyField(Genres, related_name="membership_plans")
 
     def __str__(self):
         return self.plan_name
@@ -155,3 +156,29 @@ class Notification(models.Model):
 
     def __str__(self):
         return self.message
+    
+#REVIEWS and RATINGS  
+class comments(models.Model):
+    book_comments=models.ForeignKey(Books,on_delete=models.CASCADE)
+    comment_text=models.TextField()
+    comment_published_datetime=models.DateTimeField(auto_now_add=True)
+
+    def _str_(self):
+        return self.comment_text
+    
+class Reviews(models.Model):
+    stars=(
+        (1,'one star'),
+        (2,'two star'),
+        (3,'three star'),
+        (4,'four star'),
+        (5,'five star')
+    )
+    post=models.ForeignKey(Books,related_name='review_of_book', on_delete=models.CASCADE)
+    rating=models.PositiveSmallIntegerField(choices=stars,default=1)
+    title=models.CharField(max_length=200)
+    description =models.TextField(blank=True)
+    review_author=models.ForeignKey(User,default=1 ,on_delete=models.CASCADE)
+
+    def _str_(self):
+        return self.title
